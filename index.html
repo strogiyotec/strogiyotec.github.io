@@ -6,13 +6,32 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>About Almas</title>
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="author.png" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github" href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line" href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
 <div class="page-content">
     <div class="wrapper">
         <div class="post">
-
             <header class="post-header">
                 <h1 class="post-title">About me</h1>
             </header>
@@ -34,5 +53,12 @@
         </div>
     </div>
 </div>
+<footer class="site-footer">
+    <div class="centered">
+        © strogiyotec.github.io 2020
+        <span>Website last updated at: <span id="lastupdated"></span></span>
+    </div>
+    <script type="application/javascript" src="js/updated_at.js"></script>
+</footer>
 </body>
 </html>
