@@ -107,9 +107,9 @@
                     Now when user tries to modify this list it throws an exception. However it still list and it should
                     follows the List contract.
                     Now users of this class should keep in mind that this list only supports fetching the data. Does
-                    this principle follow the<a href="https://en.wikipedia.org/wiki/Interface_segregation_principle">Interface
-                    segregation principle ?</a>.
-                    The answer in so it doesn't. Now users of our class depend on methods they don't use. Could we
+                    it  follow the <a href="https://en.wikipedia.org/wiki/Interface_segregation_principle">Interface
+                    segregation principle</a>?.
+                    The answer in no , it doesn't. Now users of our class depend on methods they don't use. Could we
                     improve this situation using class without modification methods ? Well partly.
                     Java doesn't provide such class. The closest interface which has this logic is Iterator , but it has
                     remove method. Anyway, comparing with list it has less methods. Let's use it instead
