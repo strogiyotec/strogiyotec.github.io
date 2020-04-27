@@ -68,9 +68,9 @@
                 <p class="post-meta">Apr 19 , 2020</p>
             </header>
             <article class="post-content">
-                <p>List interface is one of the most used interface in all Java based projects.
-                    However most of the time it's used only to iterate over it.
-                    Here are some main methods from List interface
+                <p>One of the most important aspects of each interface: It should be small and single responsible.
+                    Let's look at the List interface which is used in almost all Java based projects.
+                    Here are some main List methods
                 </p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
@@ -83,7 +83,7 @@
                 <p>Pretty clear and understandable, other programming languages have the same contract for lists</p>
                 <p>However , the main idea of this post is</p>
                 <h3>Do you really need all those methods? </h3>
-                <p>Let's look at an example from one of my pet project <a
+                <p>Let's look at an example from one of my pet projects <a
                         href="https://github.com/strogiyotec/J-Riddler">J-Riddler</a></p>
                 <p>Class <a
                         href="https://github.com/strogiyotec/J-Riddler/blob/master/src/main/java/com/jriddler/attrs/PrimaryKeys.java">PrimaryKeys</a>
@@ -99,31 +99,29 @@
 </code></pre>
                 </figure>
                 <p>So what is the problem ? Well there many of them, first of all what if user will call add method and
-                    add new primary key to the list or what if user delete primary key</p>
+                    add new primary key to the list or what if user delete primary key(user means user of this class)</p>
                 <p>
                     In order to prevent it java has some utility methods
                     which wrap List instance into immutable List
                     <code class="language-plaintext highlighter-rouge">Collections.unmodifiableList(list);</code>.
-                    Now when user tries to modify this list it throws an exception. However it still list and it should
-                    follows the List contract.
-                    Now users of this class should keep in mind that this list only supports fetching the data. Does
+                    Now when user tries to modify this list it throws an exception. However it is still a list.
+                    Now users of this class have to remember that this list is immutable and doesn't support the majority of it's methods. Does
                     it follow the <a href="https://en.wikipedia.org/wiki/Interface_segregation_principle">Interface
                     segregation principle</a>?.
-                    The answer in no , it doesn't. Now users of our class depend on methods they don't use. Could we
-                    improve this situation using class without modification methods ? Well partly.
-                    Java doesn't provide such class. The closest interface which has this logic is Iterator , but it has
-                    remove method which is not supported by default.
+                    The answer in no , it doesn't. All classes that  use <code class="language-plaintext highlighter-rouge">PrimaryKeys</code> will depend on methods they don't use. Could we
+                     make it better by using interface without modification methods ? Well partly.
+                    Java doesn't provide such interface. The closest one is Iterator , but it has
+                    remove method which is not supported by default. Here is the list of <code class="language-plaintext highlighter-rouge">Iterator</code> methods
                 </p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
                                 class="k">boolean hasNext();</span>
 <span class="o">E next();</span>
 <span class="o">default void remove() {throw new UnsupportedOperationException("remove");}</span>
-<span class="o">     }</span>
 </code></pre>
                 </figure>
                 <p>
-                    Few words before we start. There are a lot of java methods which accept Iterable instead, so it
+                    Few words before we start. There are a lot of java methods which accept Iterable instead of Iterator, so it
                     would be better to implement Iterable interface which has a method that provides Iterator.
                 </p>
                 <figure class="highlight">
@@ -134,16 +132,18 @@
 <span class="o">     }</span>
 </code></pre>
                 </figure>
-                <p>Now it only allows you to iterate over it, but what if user want to access element by index as in the
+                <p>Now <code class="language-plaintext highlighter-rouge">PrimaryKeys</code> allows user to access data without modifying the actual list,
+                    but what if we want to access element by index as in the
                     test above ? Well in this case it's up to the user to convert this interface to something else such
-                    as List</p>
+                    as Array</p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
                                 class="k">Iterable it = new PrimaryKeys("users", TestDbInstance.datasource)</span>
-<span class="o">Assert.assertThat(new ArrayList(it).get(0),CoreMatchers.is("id"))</span>
+<span class="o">Assert.assertThat(new String[](it)[0],CoreMatchers.is("id"))</span>
 </code></pre>
                 </figure>
             </article>
+            <p>Unfortunately, you can't create array using the syntax above( Maybe java will support custom constructors for array in the near future let's see)</p>
             <h3>The List is just a beginning</h3>
             <p>List is just an example. I face this problem everyday when I work with backend services especially Spring
                 based services</p>
@@ -151,13 +151,13 @@
                 use SpringData) interface which contains 10 methods which behave as a layer between service and
                 Database.
                 you inject this Dao into <code class="language-plaintext highlighter-rouge">UserService</code> class and
-                you only use 3 methods out of 10</p>
+                you use only 3 methods out of 10.</p>
             <p>Usually , as a result , this UserDao is injected into a lot of classes but none of them use all
-                methods</p>
-            <p>Now lets say you need to operate with orders inside UserService, in this case you inject <code
-                    class="language-plaintext highlighter-rouge">OrderDao</code> and use only 2 methods out of let's say
+                methods.</p>
+            <p>Now lets say you need to operate with orders related to the User , in this case you inject <code
+                    class="language-plaintext highlighter-rouge">OrderDao</code> into UserService and use only 2 methods out of let's say
                 5.
-                Does UserService follow single responsibility principle now ? I don't think so
+                Does UserService follow single responsibility principle now ? I don't think so. UserService has two Dao instances but use them partly
             </p>
             <h3>Conclusion</h3>
             <p>List is just an example how to spoil you architecture. Try to make your interfaces as small as possible.
