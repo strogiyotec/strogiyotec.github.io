@@ -80,8 +80,8 @@
 <span class="o">E get(int index)</span>
 </code></pre>
                 </figure>
-                <p>Pretty clear and understandable, other programming languages have the same contract for lists</p>
-                <p>However , the main idea of this post is</p>
+                <p>Pretty clear and understandable, other programming languages have the same contract for lists.</p>
+                <p>However , the main idea of this post is.</p>
                 <h3>Do you really need all those methods? </h3>
                 <p>Let's look at an example from one of my pet projects <a
                         href="https://github.com/strogiyotec/J-Riddler">J-Riddler</a></p>
@@ -89,7 +89,7 @@
                         href="https://github.com/strogiyotec/J-Riddler/blob/master/src/main/java/com/jriddler/attrs/PrimaryKeys.java">PrimaryKeys</a>
                     implements List interface and delegate all List methods calls to the global variable <code
                             class="language-plaintext highlighter-rouge">primaryKeys</code>
-                    and here is an example how this class is used in test
+                    and here is an example how this class is used in test.
                 </p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
@@ -99,7 +99,7 @@
 </code></pre>
                 </figure>
                 <p>So what is the problem ? Well there many of them, first of all what if user will call add method and
-                    add new primary key to the list or what if user delete primary key(user means user of this class)</p>
+                    add new primary key to the list or what if user delete primary key(user means user of this class).</p>
                 <p>
                     In order to prevent it java has some utility methods
                     which wrap List instance into immutable List
@@ -107,7 +107,7 @@
                     Now when user tries to modify this list it throws an exception. However it is still a list.
                     Now users of this class have to remember that this list is immutable and doesn't support the majority of it's methods. Does
                     it follow the <a href="https://en.wikipedia.org/wiki/Interface_segregation_principle">Interface
-                    segregation principle</a>?.
+                    segregation principle</a>?
                     The answer in no , it doesn't. All classes that  use <code class="language-plaintext highlighter-rouge">PrimaryKeys</code> will depend on methods they don't use. Could we
                      make it better by using interface without modification methods ? Well partly.
                     Java doesn't provide such interface. The closest one is Iterator , but it has
@@ -135,7 +135,7 @@
                 <p>Now <code class="language-plaintext highlighter-rouge">PrimaryKeys</code> allows user to access data without modifying the actual list,
                     but what if we want to access element by index as in the
                     test above ? Well in this case it's up to the user to convert this interface to something else such
-                    as Array</p>
+                    as Array.</p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
                                 class="k">Iterable it = new PrimaryKeys("users", TestDbInstance.datasource)</span>
@@ -144,13 +144,13 @@
                 </figure>
             </article>
             <p>Unfortunately, you can't create array using the syntax above( Maybe java will support custom constructors for array in the near future let's see)</p>
-            <h3>The List is just a beginning</h3>
+            <h3>List is just a beginning</h3>
             <p>List is just an example. I face this problem everyday when I work with backend services especially Spring
-                based services</p>
+                based services.</p>
             <p>Let's say you have <code class="language-plaintext highlighter-rouge">UserDao</code>(or Repository if you
-                use SpringData) interface which contains 10 methods which behave as a layer between service and
+                use SpringData) interface with 10 methods which behave as a layer between service and
                 Database.
-                you inject this Dao into <code class="language-plaintext highlighter-rouge">UserService</code> class and
+                You inject this Dao into <code class="language-plaintext highlighter-rouge">UserService</code> class and
                 you use only 3 methods out of 10.</p>
             <p>Usually , as a result , this UserDao is injected into a lot of classes but none of them use all
                 methods.</p>
