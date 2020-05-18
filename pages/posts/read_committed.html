@@ -129,7 +129,8 @@
                     committed yet
                     it will be locked. The question is , will it update amount to 400 when the first transaction will
                     commit it's changes.
-                    Let's see , commit first transaction as see if the second transaction will update amount from 300 to
+                    Let's see , commit first transaction and see if the second transaction will update amount from 300
+                    to
                     400.
                     <br>
                     <code class="language-plaintext highlight-rouge">
@@ -141,7 +142,7 @@
                     </code>
                     <br>
                     So far so good, Postgres follows the documented behavior. The second transaction re-evaluated WHERE
-                    clause and as first transaction committed changes
+                    clause and as the first transaction committed changes
                     then the second one didn't update any row cause the amount was changed from 200 to 300 and search
                     condition in the second transaction skipped this row.
                 </p>
@@ -202,8 +203,10 @@
                     clause but this is how it works. Here is my
                     <a href="https://stackoverflow.com/questions/61781595/postgres-read-commited-doesnt-re-read-updated-row?noredirect=1#comment109279507_61781595">
                         StackOverflow
-                    </a> question related to it. And lastly , how to fix it? Well the easiest way would by to execute two transactions in <code>REPEATABLE READ</code> isolation level.
-                    In this case case the second transaction will fail with <code>could not serialize access due to concurrent update</code> exception and your application code
+                    </a> question related to it. And lastly , how to fix it? Well the easiest way would by to execute
+                    two transactions in <code>REPEATABLE READ</code> isolation level.
+                    In this case the second transaction will fail with <code>could not serialize access due to
+                        concurrent update</code> exception and your application code
                     will have to add retry logic for this transaction.
                 </p>
             </article>
