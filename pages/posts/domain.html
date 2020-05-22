@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="description" content="postgres,transactions">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Request and Database domains</title>
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163711919-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'UA-163711919-1');
+    </script>
+</head>
+
+<body>
+
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="../../images/author.png" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github" href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line" href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Check my stack-overflow account"
+                       href="https://stackoverflow.com/users/8019439/almas-abdrazak">
+                        <i class="fa fa-stack-overflow fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="Follow me on medium" href="https://medium.com/@almas337519">
+                        <i class="fa fa-medium fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <nav class="site-nav">
+            <a href="#" class="menu-icon">
+                <svg viewBox="0 0 18 15">
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                </svg>
+            </a>
+            <div class="trigger">
+                <a class="page-link" href="../../index.html">About</a>
+                <a class="page-link" href="../blogs.html">Blog</a>
+            </div>
+        </nav>
+    </div>
+</header>
+<div class="page-content">
+    <div class="wrapper">
+        <div class="post">
+            <header class="post-content">
+                <h1 class="post-title">Request and database domains</h1>
+                <p class="post-meta">May 21 , 2020</p>
+            </header>
+            <article class="post-content">
+                <p>
+                    Let me show you an example from my plain REST API implementation called <em>widrest</em> but before
+                    you have to understand business logic. The main domain of the business is called Widget. Widget has
+                    some properties namely:
+                </p>
+                <ul>
+                    <li>Y coordinate</li>
+                    <li>X coordinate</li>
+                    <li>Z index</li>
+                    <li>Last updated date</li>
+                    <li>Width</li>
+                    <li>Height</li>
+                    <li>Database id</li>
+                </ul>
+                <p>Simple enough to understand, and now we have the following requirement: <br>
+                    <code>User can specify all attributes except for Id and Last Updated time through web form and as a
+                        response server saves this data,
+                        assign unique identifier to widget and set last updated time to creation date.User can assign
+                        null value for z-index , in this case server will assign the value lower than the minimum
+                        z-index in database on 1 </code> Again quite
+                    easy task
+                    <br>If you asked me to implement it one year ago I would make a simple domain for Database layer and
+                    Request form called Widget but not now and here are some problems with this implementation
+                </p>
+                <figure class="articleimg">
+                    <img src="../../images/tom_asks_for_help.jpg" alt="Tom asks for help">
+                    <figcaption>
+                        Tom &amp; Jerry by William Hanna and Joseph Barbera
+                    </figcaption>
+                </figure>
+            </article>
+        </div>
+    </div>
+</div>
+</body>
+</html>
