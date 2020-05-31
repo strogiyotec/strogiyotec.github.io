@@ -88,7 +88,7 @@
                     the list of associated orders as json. Sometimes we are interested in user's data only.Sometimes the
                     validation logic depends on the specific rules. For each case we will add new and new logic into
                     User and as a result
-                    this class become completely unmaintainable.But what if we can create a separate DTO for each new
+                    this class becomes completely unmaintainable.But what if we can create a separate DTO for each new
                     requirement. Then all of them will have a lot of similar methods,logic...
                     <br>
                     One solution for this issue was proposed in this
@@ -151,7 +151,7 @@
 <span class="o">}</span>
 </code></pre>
                 </figure>
-                <p>This class could be used in order to parse json request and to send response to user. </p>
+                <p>This class could be used in order to parse json request and to send response to a user. </p>
                 <ul>
                     <li>We have to keep in mind that
                         user can't specify id in request for widget that is why we should add<br>
