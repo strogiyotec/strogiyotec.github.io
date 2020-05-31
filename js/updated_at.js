@@ -5,7 +5,6 @@ fetch(github_api_url)
         return response.json()
     })
     .then((data) => {
-        console.log(data[0])
         const lastUpdated = new Date(data[0].commit.committer.date);
         span.textContent += lastUpdated.getDate() + "/" + (lastUpdated.getMonth() + 1) + "/" + lastUpdated.getFullYear();
 
