@@ -107,7 +107,8 @@
                 </figure>
                 <h1 id="reevaluated">Re-evaluated</h1>
                 <p>The most confusing sentence for me was the one that describes re-evaluation of <code
-                        class="language-plaintext highlighter-rouge">WHERE</code> clause namely:</p>
+                        class="language-plaintext highlighter-rouge">WHERE</code> clause during two concurrent updated,
+                    namely:</p>
                 <blockquote>
                     The search condition of the command (the WHERE clause) is re-evaluated to see if the updated version
                     of the row still matches the search condition.
@@ -115,28 +116,34 @@
                     In the case of SELECT FOR UPDATE and SELECT FOR SHARE,
                     this means it is the updated version of the row that is locked and returned to the client.
                 </blockquote>
-                <p> I want to emphasize that the quote above works only for <code
-                        class="language-plaintext highlight-rouge">UPDATE, DELETE, SELECT FOR UPDATE, and SELECT FOR
-                    SHARE</code> which means that it doesn't work for plain selects.
-                    <br>
-                    Let's see how it works with our best friends Alice and Bob and the best designed table called
+                <p>
+                    Will the second updater see all the changes made by the first one? Let's see with our best friends
+                    Alice and Bob and the best designed table called
                     account
                     <code class="language-plaintext highlight-rouge">CREATE TABLE account(id int primary key,name
                         text,amount int);</code>
                 </p>
-                <p>Now let's insert two values into the table <code class="language-plaintext highlight-rouge">insert
-                    INTO account(id,name,amount) VALUES (1,'Bob',200),(2,'Bob',800)</code>.
-                    Now open two parallel transactions using <a
+                <p>Now let's insert two values into the table
+                    <br>
+                    <code class="language-plaintext highlight-rouge">
+                        INSERT INTO account(id,name,amount) VALUES (1,'Bob',200),(2,'Bob',800);
+                    </code>.
+                    Then open two parallel transactions using <a
                             href="https://www.postgresql.org/docs/current/app-psql.html">psql</a>
                     (BTW, do you know about <a href="https://www.pgcli.com/">pgcli</a>? I use it daily instead of
                     heavyweight pgAdmin).
                     The first transaction will execute (and not commit) the following query
+                    <br>
                     <code class="language-plaintext highlight-rouge">
                         test> update account set amount = 300 where amount = 200; --1
-                    </code>.And the second one will execute this query
+                    </code>.
+                    <br>
+                    And the second one will execute this query
+                    <br>
                     <code class="language-plaintext highlight-rouge">update account set amount = 400 where amount =
                         200;--2</code>.
-                    So as the second transaction wants to update a row which has been already updated and hasn't been
+                    <br>
+                    So as the second transaction wants to update a row which has already updated and hasn't been
                     committed yet
                     it will be locked. The question is , will it update amount to 400 when the first transaction will
                     commit it's changes.
@@ -179,11 +186,12 @@
                     <br>
                     So the second transaction wants to add 50 to all accounts whose total amount is bigger or equals to
                     1000. As it wants to update the same row as the first transaction it will be locked.
-                    Bob's total amount is 1000. However the first transaction changed amount of the first account from
+                    Bob's total amount is 1000. However the first transaction changed the amount of the first account
+                    from
                     200 to 100
                     so now Bob should have 900 as soon as the first transaction will be committed. Will the second
                     transaction re-evaluate subquery
-                    and skip Bob's account? Let's see. Commit first transaction and then the second one.
+                    and skip Bob's accounts? Let's see. Commit first transaction and then the second one.
                     Execute select and account table will look like this.
                     <br>
                     <code class="language-plaintext highlight-rouge">
@@ -207,18 +215,22 @@
                     </code>
                     <br>
                     Which means that the second transaction didn't re-evaluate subquery and updated Bob's accounts even
-                    if their total was 900 before changes from the second transaction.
+                    if their total was 900 before changes from the second transaction. Why ? As far as I understand ,
+                    the <code>WHERE</code> clause in the second query <code>where name in...</code> was reevaluated and
+                    it checked if name was changed.
+                    However the subquery has already been finished the execution and it saw the state when Bob had total amount equals to 1000.
+                    How to fix it? Well the easiest way would by to execute
+                    two transactions in <code>REPEATABLE READ</code> isolation level.
+                    In this case the second transaction will fail with <code>could not serialize access due to
+                        concurrent update</code> exception and your application code
+                    will have to add retry logic for this transaction.
                 </p>
                 <h1>Conclusion</h1>
                 <p>For me it was unobvious that <code>READ COMMITTED</code> doesn't re-evaluate subqueries inside <code>WHERE</code>
                     clause but this is how it works. Here is my
                     <a href="https://stackoverflow.com/questions/61781595/postgres-read-commited-doesnt-re-read-updated-row?noredirect=1#comment109279507_61781595">
                         StackOverflow
-                    </a> question related to it. And lastly , how to fix it? Well the easiest way would by to execute
-                    two transactions in <code>REPEATABLE READ</code> isolation level.
-                    In this case the second transaction will fail with <code>could not serialize access due to
-                        concurrent update</code> exception and your application code
-                    will have to add retry logic for this transaction.
+                    </a> question related to it.
                 </p>
             </article>
         </div>
