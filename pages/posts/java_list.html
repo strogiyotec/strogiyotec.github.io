@@ -2,9 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
+    <meta property="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta name="description" content="Java,List">
+    <meta property="description" content="Java,List">
+    <meta property="og:title" content="Do you really need a List?"/>
+    <meta property="og:url" content="https://strogiyotec.github.io/pages/posts/java_list.html"/>
+    <meta property="og:description" content="Do you really need a List?"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:site_name" content="Almas Abdrazak"/>
+    <meta property="og:image" content="https://strogiyotec.github.io/images/author.png"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Do you really need a List?</title>
     <link rel="stylesheet" href="../../css/font-awesome.min.css">
@@ -66,9 +72,12 @@
         <nav class="site-nav">
             <a href="#" class="menu-icon">
                 <svg viewBox="0 0 18 15">
-                    <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
-                    <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
-                    <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
                 </svg>
             </a>
             <div class="trigger">
@@ -117,19 +126,24 @@
 </code></pre>
                 </figure>
                 <p>So what is the problem ? Well there many of them, first of all what if user will call add method and
-                    add new primary key to the list or what if user delete primary key(user means user of this class).</p>
+                    add new primary key to the list or what if user delete primary key(user means user of this
+                    class).</p>
                 <p>
                     In order to prevent it java has some utility methods
                     which wrap List instance into immutable List
                     <code class="language-plaintext highlighter-rouge">Collections.unmodifiableList(list);</code>.
                     Now when user tries to modify this list it throws an exception. However it is still a list.
-                    Now users of this class have to remember that this list is immutable and doesn't support the majority of it's methods. Does
+                    Now users of this class have to remember that this list is immutable and doesn't support the
+                    majority of it's methods. Does
                     it follow the <a href="https://en.wikipedia.org/wiki/Interface_segregation_principle">Interface
                     segregation principle</a>?
-                    The answer in no , it doesn't. All classes that  use <code class="language-plaintext highlighter-rouge">PrimaryKeys</code> will depend on methods they don't use. Could we
-                     make it better by using interface without modification methods ? Well partly.
+                    The answer in no , it doesn't. All classes that use <code
+                        class="language-plaintext highlighter-rouge">PrimaryKeys</code> will depend on methods they
+                    don't use. Could we
+                    make it better by using interface without modification methods ? Well partly.
                     Java doesn't provide such interface. The closest one is Iterator , but it has
-                    remove method which is not supported by default. Here is the list of <code class="language-plaintext highlighter-rouge">Iterator</code> methods.
+                    remove method which is not supported by default. Here is the list of <code
+                        class="language-plaintext highlighter-rouge">Iterator</code> methods.
                 </p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
@@ -139,7 +153,8 @@
 </code></pre>
                 </figure>
                 <p>
-                    Few words before we start. There are a lot of java methods which accept Iterable instead of Iterator, so it
+                    Few words before we start. There are a lot of java methods which accept Iterable instead of
+                    Iterator, so it
                     would be better to implement Iterable interface which has a method that creates Iterator instance.
                 </p>
                 <figure class="highlight">
@@ -150,9 +165,11 @@
 <span class="o">     }</span>
 </code></pre>
                 </figure>
-                <p>Now <code class="language-plaintext highlighter-rouge">PrimaryKeys</code> class allows user to access data without modifying the actual list of primary key names,
+                <p>Now <code class="language-plaintext highlighter-rouge">PrimaryKeys</code> class allows user to access
+                    data without modifying the actual list of primary key names,
                     but what if we want to access element by index as in the
-                    test above ? Well in this case it's up to the user to convert <code class="language-plaintext highlighter-rouge">Iterable</code> into something else such
+                    test above ? Well in this case it's up to the user to convert <code
+                            class="language-plaintext highlighter-rouge">Iterable</code> into something else such
                     as Array.</p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
@@ -161,10 +178,12 @@
 </code></pre>
                 </figure>
             </article>
-            <p>Unfortunately, you can't create array using the syntax above( Maybe java will support custom constructors for array in the near future ,will see).</p>
+            <p>Unfortunately, you can't create array using the syntax above( Maybe java will support custom constructors
+                for array in the near future ,will see).</p>
             <h3>List is just a beginning</h3>
-            <p>List is just an example. I face Interface segregation principle violation everyday when I work with backend services especially those which are Spring Based.
-                </p>
+            <p>List is just an example. I face Interface segregation principle violation everyday when I work with
+                backend services especially those which are Spring Based.
+            </p>
             <p>Let's say you have <code class="language-plaintext highlighter-rouge">UserDao</code>(or Repository if you
                 use SpringData) interface with 10 methods which behave as a layer between service and
                 Database.
@@ -173,9 +192,11 @@
             <p>Usually , as a result , this UserDao is injected into a lot of other classes but none of them use all
                 methods.</p>
             <p>Now lets say you need to operate with orders related to the User , in this case you inject <code
-                    class="language-plaintext highlighter-rouge">OrderDao</code> into UserService and use only 2 methods out of let's say
+                    class="language-plaintext highlighter-rouge">OrderDao</code> into UserService and use only 2 methods
+                out of let's say
                 5.
-                Does UserService follow single responsibility principle now ? I don't think so. UserService has two Dao instances but use both of them partly.
+                Does UserService follow single responsibility principle now ? I don't think so. UserService has two Dao
+                instances but use both of them partly.
             </p>
             <h3>Conclusion</h3>
             <p>List is just an example how to spoil you architecture. Try to make your interfaces as small as possible.

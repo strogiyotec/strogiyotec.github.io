@@ -2,9 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
+    <meta property="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta name="description" content="java,dto,rest,patterns">
+    <meta property="description" content="java,dto,rest,patterns">
+    <meta property="og:title" content="DTO in OOP world"/>
+    <meta property="og:url" content="https://strogiyotec.github.io/pages/posts/domain.html"/>
+    <meta property="og:description" content="DTO in OOP world"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:site_name" content="Almas Abdrazak"/>
+    <meta property="og:image" content="https://strogiyotec.github.io/images/author.png"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>DTO in OOP world</title>
     <link rel="stylesheet" href="../../css/font-awesome.min.css">
@@ -116,7 +122,8 @@
                 <p>
                     Let me show you an example from my plain REST API implementation called <a
                         href="https://github.com/strogiyotec/widrest">widrest</a> but before this,
-                    you have to understand the business logic. The main domain of the business is called Widget. Widget has
+                    you have to understand the business logic. The main domain of the business is called Widget. Widget
+                    has
                     some properties namely:
                 </p>
                 <ul>
@@ -193,7 +200,8 @@
 <span class="o">}</span>
 </code></pre>
                 </figure>
-                <p>Widget had two reasons to be changed depending on new requirements for update and create.It doesn't follow single responsibility principle. </p>
+                <p>Widget had two reasons to be changed depending on new requirements for update and create.It doesn't
+                    follow single responsibility principle. </p>
                 <h1>Possible solution</h1>
                 <p>As a solution, I decided that Widget should be an interface and all validation logic should depend
                     on a specific implementation. Widget interface gives you an access
