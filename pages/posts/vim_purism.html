@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="description" content="vim,linux">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vim as a lifestyle</title>
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163711919-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'UA-163711919-1');
+    </script>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="../../images/author.png" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github" href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line" href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Schedule a meeting with me "
+                       href="https://calendly.com/aalmas">
+                        <i class="fa fa-calendar fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Check my stack-overflow account"
+                       href="https://stackoverflow.com/users/8019439/almas-abdrazak">
+                        <i class="fa fa-stack-overflow fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="Follow me on medium" href="https://medium.com/@almas337519">
+                        <i class="fa fa-medium fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="My LinkedIn account" href="https://www.linkedin.com/in/almas-abdrazak-01882515b/">
+                        <i class="fa fa-linkedin fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <nav class="site-nav">
+            <a href="#" class="menu-icon">
+                <svg viewBox="0 0 18 15">
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                </svg>
+            </a>
+            <div class="trigger">
+                <a class="page-link" href="../../index.html">About</a>
+                <a class="page-link" href="../blogs.html">Blog</a>
+            </div>
+        </nav>
+    </div>
+</header>
+<div class="page-content">
+
+    <div class="wrapper">
+        <div class="post">
+            <header class="post-content">
+                <h1 class="post-title">Vim as a lifestyle</h1>
+                <p class="post-meta">May 13 , 2020</p>
+            </header>
+            <article class="post-content">
+                <p>
+                    I have been using Ubuntu since 2018 , but I have never heard about VIM till the summer of 2019.
+                    I clearly remember this day when I had a pair programming session with my Team Lead
+                    where we tried to solve some config bug in production server.The server didn't have nano(console
+                    based text
+                    editor that I used before).So consequently I asked how am I suppose to edit this file through ssh
+                    session in terminal.And at this
+                    point of time I met an awful editor called Vim which took me 50 minutes to change one line of
+                    code(Team Lead didn't help and asked to figure this out by own) and I never regret about it
+                    because it completely changed the way I use my environment in a daily basics.
+                </p>
+                <figure class="articleimg">
+                    <img src="../../images/exit_vim.png" alt="Vim">
+                </figure>
+                <h1>Best text editor</h1>
+                <p>Since then , I have been learning Vim and still I could find a thousand of features that I'm not
+                    aware of.<br>
+                    But if it is as awful as I said before then why did I decide to use it in the first place? To be
+                    honest I didn't.
+                    I hated this editor
+                    because I thought about it as a cumbersome software which is hard to use and it doesn't worst it.
+                    Just for curiosity , I googled how people usually use it and I was shocked. I didn't see black
+                    screen that I saw in the first time. I saw autosuggestion and syntax highlighting inside the editor
+                    with a beautiful theme. And then I started my journey with Vim(Right now I use <a
+                            href="https://github.com/neovim/neovim">Neovim</a>).So why Vim and how it changed the way I
+                    think and use the software.
+                </p>
+                <h1>VIM?</h1>
+                According to Wikipedia
+                <blockquote>
+                    Vim is the editor of choice for many developers and power users. It’s a “modal” text editor based on
+                    the vi editor written by Bill Joy in the 1970s for a version of UNIX. It inherits the key bindings
+                    of vi, but also adds a great deal of functionality and extensibility that are missing from the
+                    original vi.
+                </blockquote>
+                <h1 id="config">Configuration</h1>
+                <p>Vim is super configurable. You could customize every keyboard or combination of keyboards to do
+                    whatever you want.The best advise that I want to share: Don't copy paste a whole config from other
+                    people.Don't do it. Every person who knows how to use Vim configure it for own usage. Learn how to
+                    configure Vim and then check how other people do it in order to take some ideas. But never
+                    blindly copy paste it(I did once and it took me a lot time to understand why all keys that I knew
+                    didn't work as I expected).BTW here is mine <a
+                            href="https://github.com/strogiyotec/yads/blob/master/.config/nvim/init.vim">config</a> if
+                    you need some inspiration. It's configured to work with js,python and golang.</p>
+                <h1 id="plugins">Plugins</h1>
+                <p>I don't know much about VSCode but IntellijIdea doesn't have the variety of plugins that Vim has.All
+                    of
+                    them are opensourced and managed by people by free(The power of Open source community). But be
+                    careful , sometimes those plugins reconfigure your key bindings(always check documentation in
+                    advance)
+                </p>
+                <h1>Language server protocol support</h1>
+                <p>If you don't know what that means, it's basically code completion and error highlighting that you
+                    have in your favorite Idea.Vim has a plugin for it as well so you could configure Vim to be as smart
+                    as something like Intellij(Check <a href="https://github.com/neoclide/coc.nvim">coc</a> as an
+                    example).
+                </p>
+                <h1>What is wrong with GUI editors?</h1>
+                <p>My favorite editor is Intellij.It really increases my productivity working with huge Java
+                    codebase.However it has two huge disadvantages. First of all the version that I use is not free and
+                    Community version doesn't
+                    include all the plugins that I need.
+                    <br/>
+                    Secondly, it's bloated. It consumes a lot of RAM and CPU in my
+                    machine which is not the most powerful one. It has an awful ui with thousands of buttons that I
+                    don't even use and can't remove.Lastly it consumes a battery too fast so it's not a good idea to
+                    work with it out of your home.In Vim you configure everything by yourself and if you are not happy
+                    about performance or view then it's easy to fix it within your configuration.</p>
+                <h1>How vim changed the way I think about a software</h1>
+                <p>Watching and reading tutorials about vim I always heard the same idea: GUI makes you slow.And it's
+                    partly true.
+                    It is much faster to open terminal(I use <a
+                            href="https://github.com/alacritty/alacritty">Alacritty</a> BTW) and type what you want
+                    instead of waiting for GUI window to appear(Yes my laptop is not really powerful) and then pressing
+                    bunch of buttons to finally get an
+                    option that you want.The point is: Terminal with keyboard is faster then GUI with mouse.But it's not
+                    always possible
+                    to replace GUI program with something which is as keyboard driven as Vim or is it?
+                    <br>
+                    I found a bunch of opensource software that helped me to speed up my workflow.And here is the list
+                    of some of them:
+                </p>
+                <ul>
+                    <li>Browser?
+                        <p>I use firefox as my main one and I found an awesome plugin called <a
+                                href="https://github.com/philc/vimium">Vimium</a> that brings Vim key bindings to the
+                            browser.</p>
+                    </li>
+                    <li>File manager?
+                        <p>As a file manager I would recommend <a href="https://github.com/ranger/ranger">ranger</a>
+                            which is
+                            <cite>A VIM-inspired filemanager for the console.</cite>
+                        </p>
+                    </li>
+                    <li>Terminal?
+                        <p>Yes even terminal. I found it annoying to use arrow keys in order to edit a command in my
+                            terminal. Bash has a vi mode that allows you to move cursor in the terminal using Vim
+                            bindings but
+                            it doesn't allow you to delete or modify word using shortcuts. That is one of the reasons
+                            why I changed my shell
+                            from bash to <a href="https://www.zsh.org/">zsh</a> that has a whole Vim bindings support
+                            (I also modified zsh config to have more vim bindings, you can find my config <a
+                                    href="https://github.com/strogiyotec/yads/blob/master/.zshrc">here</a> ).
+                        </p>
+                    </li>
+                    <li>Editor?
+                        <p>I think in the beginning of your Vim journey you won't be happy using vim as your main editor
+                            at work because instead of
+                            solving real business problems you will penetrate your brain with all those vim bindings and
+                            plugins configuration.It happened to me as well so I recommend you to find Vim plugin for
+                            your editor to start with and disable it if you have to concentrate on task. For example I
+                            still use IntellijIdea to work with Java but I use
+                            <a
+                                    href="https://github.com/JetBrains/ideavim">IdeaVim</a> plugin that brings vim
+                            functionality to the editor(Here is my IdeaVim <a
+                                    href="https://github.com/strogiyotec/yads/blob/master/.ideavimrc">config</a>).For
+                            the first time I used to disable this plugin when I worked and enabled it when I wrote some
+                            open source code.Now I use it constantly and mostly replaced all default mappings with Vim
+                            mappings.</p>
+                    </li>
+                </ul>
+                <h1>Final words</h1>
+                <p>Vim and Vim inspired software made my workflow much easier and faster.I didn't mention all Vim based
+                    programs that I
+                    use probably I will do another post about it where I will explain how awful some programs are(Yes
+                    Adobe I'm talking about you) and how to replace them with lightweight vim based open source
+                    solution(<a
+                            href="https://github.com/pwmt/zathura">Zathura</a> is my best friend to open pdfs).
+                </p>
+                <p>Finally. Here is how Vim looks like using my config(pure and elegant).</p>
+                <figure class="articleimg">
+                    <img src="../../images/personal_vim.jpeg" alt="Vim Java file example">
+                </figure>
+            </article>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="centered">
+            © strogiyotec.github.io 2020
+            <span>Website last updated at: <span id="lastupdated"></span></span>
+        </div>
+        <script type="application/javascript" src="../../js/updated_at.js"></script>
+    </footer>
+</div>
+</body>
+</html>
