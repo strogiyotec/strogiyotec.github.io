@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta property="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta property="description" content="java,graalvm,cli,native-image">
+    <meta property="og:title" content="Lessons from jfill"/>
+    <meta property="og:description" content="Lessons from jfill"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:site_name" content="Almas Abdrazak"/>
+    <meta property="og:image" content="https://strogiyotec.github.io/images/tom_asks_for_help.jpg"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="author" content="Almas Abdrazak">
+    <title>Lessons from jfill</title>
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163711919-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'UA-163711919-1');
+    </script>
+</head>
+<body>
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="../../images/author.png" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github" href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line" href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Schedule a meeting with me "
+                       href="https://calendly.com/aalmas">
+                        <i class="fa fa-calendar fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Check my stack-overflow account"
+                       href="https://stackoverflow.com/users/8019439/almas-abdrazak">
+                        <i class="fa fa-stack-overflow fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="Follow me on medium" href="https://medium.com/@almas337519">
+                        <i class="fa fa-medium fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="My LinkedIn account" href="https://www.linkedin.com/in/almas-abdrazak-01882515b/">
+                        <i class="fa fa-linkedin fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <nav class="site-nav">
+            <a href="#" class="menu-icon">
+                <svg viewBox="0 0 18 15">
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                </svg>
+            </a>
+            <div class="trigger">
+                <a class="page-link" href="../../index.html">About</a>
+                <a class="page-link" href="../blogs.html">Blog</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+</body>
+<div class="page-content">
+    <div class="wrapper">
+        <div class="post">
+            <header class="post-content">
+                <h1 class="post-title">Lessons from jfill</h1>
+                <p class="post-meta">July 25, 2020</p>
+            </header>
+            <article class="post-content">
+                <p>I heard about <a href="https://github.com/oracle/graal">graalvm</a> and <a
+                        href="https://www.graalvm.org/docs/reference-manual/native-image/">native-images</a>
+                    for a while but have never used them. At the same time I do use a lot of CLI apps written in Golang
+                    but none of them is written in Java so why not to try to write one and use a native-image to pack it
+                    . Here I want to share some lessons that I learnt from it.
+                </p>
+                <figure class="articleimg">
+                    <img src="../../images/press_button.jpeg" alt="Push Button Kitty">
+                    <figcaption>
+                        Tom &amp; Jerry by William Hanna and Joseph Barbera
+                    </figcaption>
+                </figure>
+                <h1 id="jfill">Jfill?</h1>
+                <p><a href="https://github.com/strogiyotec/jfillin">Jfill</a> is a
+                    command line utility that allows you to use the same command with different set of arguments.
+                    Let's say you want to connect to postgres using psql but you have two servers (local and stage)
+                    with different user names and ports.Will you make two different aliases for it ?
+                    <code>alias psql_stage='psql -U admin -H stage'</code>
+                    <br>
+                    <code>alias psql_local='psql -U postgres -H localhost'</code>
+                    <br>
+                    This is where you can use jfill. Jfill has the following syntax
+                    <code>jfill psql -u {{psql:user}} -p {{psql:port}}</code>.
+                    Here, psql is the tag, when you execute this command you will be promoted to the menu
+                    to fill port and user , after doing it two times (first time for local environment and second time
+                    for stage)
+                    you will be able to execute this command and have auto completion for both environments using TAB.
+                    For more examples check the <a href="https://github.com/strogiyotec/jfillin">README</a> (it also
+                    contains gif screencast).
+                </p>
+                <img src="https://raw.githubusercontent.com/strogiyotec/jfillin/master/images/tag.gif" alt="Example">
+                <h2 id="cli">CLI and Java</h2>
+                <p>I have been searching for proper java library to build cli apps for ages(hours).
+                </p>
+                <ul> The main requirements I had :
+                    <li>Documentation. The library has to have a proper documentation</li>
+                    <li>Autocompletion. As I said you can trigger autocompletion with TAB that is why I was looking for
+                        library that supports it(You can't use plain Scanner for it)
+                    </li>
+                </ul>
+                <p>I found only one library called <a href="https://github.com/jline/jline3">Jline3</a>.
+                    The main disadvantage is documentation. The code is not documented(at least the classes that I
+                    used)
+                    and wiki page doesn't contain all examples(with a lot of TODO comments). I was really disappointed
+                    because Golang is quite a new language(comparing with Java), however it has a lot of open source
+                    libraries that help you to
+                    build cli
+                    apps (Have a look at <a href="https://github.com/jesseduffield/lazygit">lazygit</a> and <a
+                            href="https://github.com/bcicen/ctop">ctop</a> , both apps are used by me and I highly
+                    recommend you to check them out).
+                </p>
+                <h2 id="graalvm">Graalvm and native-image</h2>
+                <p>
+                    Native-image utility allows you to package your java app into
+                    an executable. You can share this executable or deploy it in server even without a JVM.
+                    How? JVM and all runtime for Java will be packed into an executable. It works well but I found two
+                    problems.
+                    <br>
+                    Firstly, the size of an executable. The final size of jfill is 16MB(Just for
+                    comparison,lazygit with all reach functionality takes 13 MB and ctop takes 9 MB) which is not
+                    acceptable for small cli apps.
+                    Moreover, I do use Java 11 which means that a lot of libraries were removed according to OSGI
+                    model(libraries such as Javafx and javax)
+                    . This is a known issue with existing github <a
+                        href="https://github.com/oracle/graal/issues/287">ticket</a> .
+                    They only solution that I found was <a
+                        href="https://github.com/upx/upx">UPX</a> which is CLI utility that compresses size of
+                    executables (it decreased size of jfill from 16 to 4MB) .
+                    <br>
+                    Secondly, native-image doesn't work if you use Reflection API
+                    (at least it doesn't work without proper configuration). I don't use it but the Jline3(the library
+                    used by jfill) does.
+                    In order to fix it ,you have to create json file in your resources folder and declare all Reflection
+                    calls .Fortunately ,
+                    native-image has a nice feature to execute jar file with Java agent
+                    that will collect information about Reflection calls and save them into the json file .Using
+                    statistics
+                    from
+                    json you can build an executable. You can find how it's implemented in jfill.
+                    (In order to collect statistics, use this command<br>
+                    <code>java -agentlib:native-image-agent=config-output-dir=META-INF/native-image -jar your_jar</code>
+                    more info in graal documentation).For other native-image limitations check out this <a
+                        href="https://github.com/oracle/graal/blob/master/substratevm/LIMITATIONS.md">page</a>.
+                </p>
+                <h2 id="testable-code">Don't forget about tests</h2>
+                <p>In this section I want to describe some best practises that I use in order to make my code
+                    testable.<br>
+                    A lot of people say that tests are the most important part of the development. Moreover, some
+                    developers use the special development method called TDD where you write tests first and only then
+                    you write an actual logic. I personally don't like this approach because during development
+                    you could change public API of your classes thousand times and consequently tests signatures.
+                    Additionally, writing tests is the development time. I don't think that people behind startups are
+                    interested in
+                    100% test coverage when they are not sure if product will be popular.
+                    Long story short, having tests for your software is definitely good idea but not obligatory.
+                    However your code has to be testable. What does it mean ? Let me show you untestable code from jfill
+                    and how I changed it to be more test friendly.
+                    <br>
+                </p>
+                <h3 id="dependency-injection">Dependency injection</h3>
+                <p>Let's look at the <a
+                        href="https://github.com/strogiyotec/jfillin/blob/8441ceccbecd35543d0685092083b1b169ec8514/src/main/java/jfill/ShellCommand.java#L34-L38">ShellCommand</a>
+                    class from jfill.
+                    This class executes shell command in the terminal. I want you to pay attention to these
+                    lines
+                </p>
+
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                                class="k"> var process = new ProcessBuilder()</span>
+<span class="o">    .command(resolvedArgs)</span>
+<span class="o">    .inheritIO()</span>
+<span class="o">    .start();</span>
+</code></pre>
+                </figure>
+                <p>As you can see I create ProcessBuilder in order to execute shell command and redirect input and
+                    output of the shell command to Java process.In this case the main terminal will print you the
+                    output.What is wrong with it? Well, I don't think that this code is testable.What if I want to write
+                    a test that verifies the output . The previous implementation of jfill created ProcessBuilder inside a method.
+                    How to solve it?
+                    Use dependency injection, instead of creating ProcessBuilder inside the method let's accept Builder
+                    as a method param. Main class will create builder that inherits IO while test will create a Builder
+                    that sends output
+                    to temporary file(Remember , Main class is just a main entry to our app with main method, there is
+                    no
+                    reason to test main, but we should test the components used by main).
+                    <br>
+                    Now ShellCommand looks like <a
+                            href="https://github.com/strogiyotec/jfillin/blob/master/src/main/java/jfill/ShellCommand.java">this</a>
+                    and this is the <a
+                            href="https://github.com/strogiyotec/jfillin/blob/master/src/test/java/jfill/ShellCommandTestCase.java">test</a>
+                    for it.(Output is redirected to temporary file and then I test if file's content is equal to given
+                    string)
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                                class="k"> new ShellCommand(</span>
+<span class="o">    new String[]{"echo", "{{msg1}}", "{{msg2}}"},</span>
+<span class="o">    new ValuesStorage(...),</span>
+<span class="o">    new ProcessBuilder().redirectOutput(cacheFile)</span>
+<span class="o">).execute();</span>
+<span class="o">assertEquals(</span>
+<span class="o"> "Hello World",</span>
+<span class="o"> Files.readString(cacheFile.toPath());</span>
+</code></pre>
+                </figure>
+                <h3 id="statics">Static modifier</h3>
+                <p>There are a lot articles about static modifier and why it shouldn't exist in OOP world.
+                    Let's look at the Execution class from jfill that executes ShellCommand and
+                    saves parameters into the json file(In order to use them for auto completion).
+                    Jfill has a feature that is common to all CLI apps.It can print version and help information.Let's
+                    have look at the <a
+                            href="https://github.com/strogiyotec/jfillin/blob/8441ceccbecd35543d0685092083b1b169ec8514/src/main/java/jfill/Execution.java#L77-L79">method</a>
+                    that prints version
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                                class="k">private void printVersion() {</span>
+<span class="o">    System.out.println("jfillin 1.0");</span>
+<span class="o"> }</span>
+</code></pre>
+                </figure>
+                <p>It uses static attribute System.out which is an instance of PrintStream that prints input to the
+                    console.And here is the problem. How to test that it really prints something. We are not able to
+                    check
+                    System.out instance unless we mock it which will bring powermock dependency to our code(Library that
+                    allows you to mock static methods and attributes).I personally don't like powermock because it makes
+                    our tests slower.How to solve it? Again let's use dependency
+                    injection, Execution class will accept instance of PrintStream as a method attribute and Main
+                    class will pass System.out instance to the method while tests will use nice class called
+                    ByteArrayOutputStream that saves all output in the byte array. We could verify that the content of
+                    byte array contains version information</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                                class="k">try (var stream = new ByteArrayOutputStream()) {</span>
+<span class="o">        try (var print = new PrintStream(stream)) {</span>
+<span class="o">            new Execution(</span>
+<span class="o">                new String[]{"-version"},</span>
+<span class="o">                print</span>
+<span class="o">            ).execute();</span>
+<span class="o">//Check that ByteArray contains version information</span>
+<span class="o">Assertions.assertTrue(stream.toString().contains("jfillin 2.0"));</span>
+</code></pre>
+                </figure>
+                <h1>Hide complex generics</h1>
+                <p>Let's say I have a tag <code>psql</code> that stores variables for stage and local postgres.This is
+                    how it looks like in history file(jfill stores all your commands in json file in order to  you auto completion):</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                                class="k">{</span>
+<span class="o">"psql":[</span>
+<span class="o">    {</span>
+<span class="o">    "port":"5432","user":"postgres","host":"localhost"</span>
+<span class="o">    },</span>
+<span class="o">    {</span>
+<span class="o">    "port":"5432","user":"admin","host":"stage"</span>
+<span class="o">    }</span>
+<span class="o"> ]</span>
+</code></pre>
+                </figure>
+                <p>
+                    In order to work with this tag I used to have a Map where key was a tag name and value was another
+                    Map with key value pairs that represents the name of attribute and the value
+                    <code>Map&lt;String,Map&lt;String,String&gt;&gt;</code>
+                </p>
+                <p>And now If I want to get a host from psql tag I have to use this code
+                    <code>map.get("psql").get("host")</code> which is inconvenient(At least for me).
+                    <br>
+                    That is why I moved this logic into a separate class called <code>ValuesStorage</code>. This class
+                    has
+                    a nice method called <code>get</code> that accepts name of the tag and name of the parameter.Now the
+                    same code
+                    could be rewritten using the following syntax
+                    <br>
+                    <code>valuesStorage.get("psql","host")</code>(The ValuesStorage uses the same Map as was described
+                    above, however now the actual implementation is hidden from client and it became easier to work with
+                    tag logic).
+                </p>
+                <h1>Conclusion</h1>
+                <p>It was a fun writing a CLI app in Java. However , the Java ecosystem is too far from being a right
+                    choice for CLI apps and for now I will stay with Golang.</p>
+            </article>
+        </div>
+    </div>
+</div>
+<footer class="site-footer">
+    <div class="centered">
+        © strogiyotec.github.io 2020
+        <span>Website last updated at: <span id="lastupdated"></span></span>
+    </div>
+    <script type="application/javascript" src="../../js/updated_at.js"></script>
+</footer>
+</html>
