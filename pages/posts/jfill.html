@@ -120,12 +120,12 @@
                     <br>
                     This is where you can use jfill. Jfill has the following syntax
                     <code>jfill psql -u {{psql:user}} -p {{psql:port}}</code>.
-                    Here, psql is the tag, when you execute this command you will be promoted to the menu
+                    Here, psql is a tag, when you execute this command you will be promoted to a menu
                     to fill port and user , after doing it two times (first time for local environment and second time
                     for stage)
-                    you will be able to execute this command and have auto completion for both environments using TAB.
+                    you will be able to execute this command and have auto completion for both environments by pressing TAB.
                     For more examples check the <a href="https://github.com/strogiyotec/jfillin">README</a> (it also
-                    contains gif screencast).
+                    contains gif screencasts).
                 </p>
                 <img src="https://raw.githubusercontent.com/strogiyotec/jfillin/master/images/tag.gif" alt="Example">
                 <h2 id="cli">CLI and Java</h2>
@@ -134,14 +134,14 @@
                 <ul> The main requirements I had :
                     <li>Documentation. The library has to have a proper documentation</li>
                     <li>Autocompletion. As I said you can trigger autocompletion with TAB that is why I was looking for
-                        library that supports it(You can't use plain Scanner for it)
+                        library that supports it(You can't use plain Scanner for it).
                     </li>
                 </ul>
-                <p>I found only one library called <a href="https://github.com/jline/jline3">Jline3</a>.
+                <p>I found only one project called <a href="https://github.com/jline/jline3">Jline3</a> that meets almost all requirments.
                     The main disadvantage is documentation. The code is not documented(at least the classes that I
                     used)
                     and wiki page doesn't contain all examples(with a lot of TODO comments). I was really disappointed
-                    because Golang is quite a new language(comparing with Java), however it has a lot of open source
+                    because Golang is quite a new language(comparing with Java), and at the same time it has a lot of open source
                     libraries that help you to
                     build cli
                     apps (Have a look at <a href="https://github.com/jesseduffield/lazygit">lazygit</a> and <a
@@ -163,19 +163,19 @@
                     . This is a known issue with existing github <a
                         href="https://github.com/oracle/graal/issues/287">ticket</a> .
                     They only solution that I found was <a
-                        href="https://github.com/upx/upx">UPX</a> which is CLI utility that compresses size of
+                        href="https://github.com/upx/upx">UPX</a> which is a CLI utility that compresses size of
                     executables (it decreased size of jfill from 16 to 4MB) .
                     <br>
                     Secondly, native-image doesn't work if you use Reflection API
-                    (at least it doesn't work without proper configuration). I don't use it but the Jline3(the library
+                    (at least it doesn't work without proper configuration). I don't use it but Jline3(the library
                     used by jfill) does.
-                    In order to fix it ,you have to create json file in your resources folder and declare all Reflection
-                    calls .Fortunately ,
+                    In order to fix it ,you have to create a json file in your resources folder and declare all Reflection
+                    calls in it.Fortunately ,
                     native-image has a nice feature to execute jar file with Java agent
                     that will collect information about Reflection calls and save them into the json file .Using
                     statistics
                     from
-                    json you can build an executable. You can find how it's implemented in jfill.
+                    json you can build an executable even if your code calls Reflection API. You can find how it's implemented in jfill.
                     (In order to collect statistics, use this command<br>
                     <code>java -agentlib:native-image-agent=config-output-dir=META-INF/native-image -jar your_jar</code>
                     more info in graal documentation).For other native-image limitations check out this <a
@@ -191,9 +191,9 @@
                     Additionally, writing tests is the development time. I don't think that people behind startups are
                     interested in
                     100% test coverage when they are not sure if product will be popular.
-                    Long story short, having tests for your software is definitely good idea but not obligatory.
+                    Long story short, having tests for your software is definitely a good idea but not obligatory.
                     However your code has to be testable. What does it mean ? Let me show you untestable code from jfill
-                    and how I changed it to be more test friendly.
+                    and how I changed it to be more tests friendly.
                     <br>
                 </p>
                 <h3 id="dependency-injection">Dependency injection</h3>
@@ -215,10 +215,10 @@
                 <p>As you can see I create ProcessBuilder in order to execute shell command and redirect input and
                     output of the shell command to Java process.In this case the main terminal will print you the
                     output.What is wrong with it? Well, I don't think that this code is testable.What if I want to write
-                    a test that verifies the output . The previous implementation of jfill created ProcessBuilder inside a method.
+                    a test that verifies the output . The previous implementation of jfill created ProcessBuilder inside a method which means that output will always be redirected to terminal.
                     How to solve it?
                     Use dependency injection, instead of creating ProcessBuilder inside the method let's accept Builder
-                    as a method param. Main class will create builder that inherits IO while test will create a Builder
+                    as a method param. Main class will create builder that redirects IO to terminal while test will create a Builder
                     that sends output
                     to temporary file(Remember , Main class is just a main entry to our app with main method, there is
                     no
@@ -240,13 +240,14 @@
 <span class="o">).execute();</span>
 <span class="o">assertEquals(</span>
 <span class="o"> "Hello World",</span>
-<span class="o"> Files.readString(cacheFile.toPath());</span>
+<span class="o"> Files.readString(cacheFile.toPath();</span>
+<span class="o">)</span>
 </code></pre>
                 </figure>
                 <h3 id="statics">Static modifier</h3>
-                <p>There are a lot articles about static modifier and why it shouldn't exist in OOP world.
+                <p>There are a lot of articles about static modifier and why it shouldn't exist in OOP world.
                     Let's look at the Execution class from jfill that executes ShellCommand and
-                    saves parameters into the json file(In order to use them for auto completion).
+                    saves parameters into the json file(In order to use them later on by auto completion).
                     Jfill has a feature that is common to all CLI apps.It can print version and help information.Let's
                     have look at the <a
                             href="https://github.com/strogiyotec/jfillin/blob/8441ceccbecd35543d0685092083b1b169ec8514/src/main/java/jfill/Execution.java#L77-L79">method</a>
@@ -259,7 +260,7 @@
 <span class="o"> }</span>
 </code></pre>
                 </figure>
-                <p>It uses static attribute System.out which is an instance of PrintStream that prints input to the
+                <p>It uses static attribute System.out which is an instance of PrintStream that prints an output to the
                     console.And here is the problem. How to test that it really prints something. We are not able to
                     check
                     System.out instance unless we mock it which will bring powermock dependency to our code(Library that
