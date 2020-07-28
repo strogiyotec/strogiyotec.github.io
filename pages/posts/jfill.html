@@ -225,9 +225,9 @@
                     reason to test main, but we should test the components used by main).
                     <br>
                     Now ShellCommand looks like <a
-                            href="https://github.com/strogiyotec/jfillin/blob/master/src/main/java/jfill/ShellCommand.java">this</a>
+                            href="https://github.com/strogiyotec/jfillin/blob/master/src/main/java/jfill/ShellCommand.java#L10-L14">this</a>
                     and this is the <a
-                            href="https://github.com/strogiyotec/jfillin/blob/master/src/test/java/jfill/ShellCommandTestCase.java">test</a>
+                            href="https://github.com/strogiyotec/jfillin/blob/master/src/test/java/jfill/ShellCommandTestCase.java#L19-L33">test</a>
                     for it.(Output is redirected to temporary file and then I test if file's content is equal to given
                     string)
                 </p>
@@ -283,8 +283,8 @@
 </code></pre>
                 </figure>
                 <h1>Hide complex generics</h1>
-                <p>Let's say I have a tag <code>psql</code> that stores variables for stage and local postgres.This is
-                    how it looks like in history file(jfill stores all your commands in json file in order to  you auto completion):</p>
+                <p>Let's say I have a tag <code>psql</code> that stores variables for stage and local postgres environments.This is
+                    how it looks like in history file(jfill stores all your variables in json file in order to use them latter for auto completion):</p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
                                 class="k">{</span>
@@ -299,22 +299,22 @@
 </code></pre>
                 </figure>
                 <p>
-                    In order to work with this tag I used to have a Map where key was a tag name and value was another
+                    In order to interact with this tag I used to have a Map where key was a tag name and value was another
                     Map with key value pairs that represents the name of attribute and the value
                     <code>Map&lt;String,Map&lt;String,String&gt;&gt;</code>
                 </p>
-                <p>And now If I want to get a host from psql tag I have to use this code
-                    <code>map.get("psql").get("host")</code> which is inconvenient(At least for me).
+				<p>And now If I want to get a host from <code>psql</code> tag I have to use this code
+                    <code>map.get("psql").get("host")</code> which is not obvious (At least for me).
                     <br>
-                    That is why I moved this logic into a separate class called <code>ValuesStorage</code>. This class
+                    That is why I moved this logic into a separate class called <code>ResolvedValuesStorage</code>. This class
                     has
-                    a nice method called <code>get</code> that accepts name of the tag and name of the parameter.Now the
+                    a nice method called <code>getValueByTag</code> that accepts name of the tag and name of the parameter.Now the
                     same code
                     could be rewritten using the following syntax
                     <br>
-                    <code>valuesStorage.get("psql","host")</code>(The ValuesStorage uses the same Map as was described
-                    above, however now the actual implementation is hidden from client and it became easier to work with
-                    tag logic).
+                    <code>valuesStorage.get("psql","host")</code>(The <a href="https://github.com/strogiyotec/jfillin/blob/master/src/main/java/jfill/ResolvedValuesStorage.java">ResolvedValuesStorage</a> uses the same Map as was described
+                    above, however now this logic is hidden from clients and it became easier to work with
+                    without having an access to complex Map).
                 </p>
                 <h1>Conclusion</h1>
                 <p>It was a fun writing a CLI app in Java. However , the Java ecosystem is too far from being a right
