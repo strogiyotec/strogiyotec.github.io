@@ -122,8 +122,7 @@
                     Here, psql is a tag, when you execute this command you will be promoted to a menu
                     to fill port and user , after doing it two times (first time for local environment and second time
                     for stage)
-                    you will be able to execute this command and have auto completion for both environments by pressing
-                    TAB.
+                    you will be able to execute this command and have auto completion for both environments by pressing TAB.
                     For more examples check the <a href="https://github.com/strogiyotec/jfillin">README</a> (it also
                     contains gif screencasts).
                 </p>
@@ -137,13 +136,11 @@
                         library that supports it(You can't use plain Scanner for it).
                     </li>
                 </ul>
-                <p>I found only one project called <a href="https://github.com/jline/jline3">Jline3</a> that meets
-                    almost all requirments.
+                <p>I found only one project called <a href="https://github.com/jline/jline3">Jline3</a> that meets almost all requirments.
                     The main disadvantage is documentation. The code is not documented(at least the classes that I
                     used)
                     and wiki page doesn't contain all examples(with a lot of TODO comments). I was really disappointed
-                    because Golang is quite a new language(comparing with Java), and at the same time it has a lot of
-                    open source
+                    because Golang is quite a new language(comparing with Java), and at the same time it has a lot of open source
                     libraries that help you to
                     build cli
                     apps (Have a look at <a href="https://github.com/jesseduffield/lazygit">lazygit</a> and <a
@@ -171,15 +168,13 @@
                     Secondly, native-image doesn't work if you use Reflection API
                     (at least it doesn't work without proper configuration). I don't use it but Jline3(the library
                     used by jfill) does.
-                    In order to fix it ,you have to create a json file in your resources folder and declare all
-                    Reflection
+                    In order to fix it ,you have to create a json file in your resources folder and declare all Reflection
                     calls in it.Fortunately ,
                     native-image has a nice feature to execute jar file with Java agent
                     that will collect information about Reflection calls and save them into the json file .Using
                     statistics
                     from
-                    json you can build an executable even if your code calls Reflection API. You can find how it's
-                    implemented in jfill.
+                    json you can build an executable even if your code calls Reflection API. You can find how it's implemented in jfill.
                     (In order to collect statistics, use this command<br>
                     <code>java -agentlib:native-image-agent=config-output-dir=META-INF/native-image -jar your_jar</code>
                     more info in graal documentation).For other native-image limitations check out this <a
@@ -219,12 +214,10 @@
                 <p>As you can see I create ProcessBuilder in order to execute shell command and redirect input and
                     output of the shell command to Java process.In this case the main terminal will print you the
                     output.What is wrong with it? Well, I don't think that this code is testable.What if I want to write
-                    a test that verifies the output . The previous implementation of jfill created ProcessBuilder inside
-                    a method which means that output will always be redirected to terminal.
+                    a test that verifies the output . The previous implementation of jfill created ProcessBuilder inside a method which means that output will always be redirected to terminal.
                     How to solve it?
                     Use dependency injection, instead of creating ProcessBuilder inside the method let's accept Builder
-                    as a method param. Main class will create builder that redirects IO to terminal while test will
-                    create a Builder
+                    as a method param. Main class will create builder that redirects IO to terminal while test will create a Builder
                     that sends output
                     to temporary file(Remember , Main class is just a main entry to our app with main method, there is
                     no
@@ -289,10 +282,8 @@
 </code></pre>
                 </figure>
                 <h1>Hide complex generics</h1>
-                <p>Let's say I have a tag <code>psql</code> that stores variables for stage and local postgres
-                    environments.This is
-                    how it looks like in history file(jfill stores all your variables in json file in order to use them
-                    latter for auto completion):</p>
+                <p>Let's say I have a tag <code>psql</code> that stores variables for stage and local postgres environments.This is
+                    how it looks like in history file(jfill stores all your variables in json file in order to use them latter for auto completion):</p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
                                 class="k">{</span>
@@ -307,25 +298,20 @@
 </code></pre>
                 </figure>
                 <p>
-                    In order to interact with this tag I used to have a Map where key was a tag name and value was
-                    another
+                    In order to interact with this tag I used to have a Map where key was a tag name and value was another
                     Map with key value pairs that represents the name of attribute and the value
                     <code>Map&lt;String,Map&lt;String,String&gt;&gt;</code>
                 </p>
-                <p>And now If I want to get a host from <code>psql</code> tag I have to use this code
+				<p>And now If I want to get a host from <code>psql</code> tag I have to use this code
                     <code>map.get("psql").get("host")</code> which is not obvious (At least for me).
                     <br>
-                    That is why I moved this logic into a separate class called <code>ResolvedValuesStorage</code>. This
-                    class
+                    That is why I moved this logic into a separate class called <code>ResolvedValuesStorage</code>. This class
                     has
-                    a nice method called <code>getValueByTag</code> that accepts name of the tag and name of the
-                    parameter.Now the
+                    a nice method called <code>getValueByTag</code> that accepts name of the tag and name of the parameter.Now the
                     same code
                     could be rewritten using the following syntax
                     <br>
-                    <code>valuesStorage.get("psql","host")</code>(The <a
-                            href="https://github.com/strogiyotec/jfillin/blob/master/src/main/java/jfill/ResolvedValuesStorage.java">ResolvedValuesStorage</a>
-                    uses the same Map as was described
+                    <code>valuesStorage.get("psql","host")</code>(The <a href="https://github.com/strogiyotec/jfillin/blob/master/src/main/java/jfill/ResolvedValuesStorage.java">ResolvedValuesStorage</a> uses the same Map as was described
                     above, however now this logic is hidden from clients and it became easier to
                     work with tags without having an access to complex Map).
                 </p>

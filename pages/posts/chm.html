@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demystify Concurrent Hash Map</title>
+    <meta charset="UTF-8">
+    <meta property="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta property="description" content="java,concurrency,hashmap">
+    <meta property="og:title" content="Demystify Concurrent Hash Map"/>
+    <meta property="og:url" content="https://strogiyotec.github.io/pages/posts/chm.html"/>
+    <meta property="og:description" content="Demystify Concurrent Hash Map"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:site_name" content="Almas Abdrazak"/>
+    <meta property="og:image" content="https://raw.githubusercontent.com/strogiyotec/strogiyotec.github.io/master/images/lazy_tom.jpg"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="author" content="Almas Abdrazak">
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163711919-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'UA-163711919-1');
+    </script>
+</head>
+<body>
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="../../images/author.png" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github" href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line" href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Schedule a meeting with me "
+                       href="https://calendly.com/aalmas">
+                        <i class="fa fa-calendar fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Check my stack-overflow account"
+                       href="https://stackoverflow.com/users/8019439/almas-abdrazak">
+                        <i class="fa fa-stack-overflow fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="Follow me on medium" href="https://medium.com/@almas337519">
+                        <i class="fa fa-medium fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="My LinkedIn account" href="https://www.linkedin.com/in/almas-abdrazak-01882515b/">
+                        <i class="fa fa-linkedin fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <nav class="site-nav">
+            <a href="#" class="menu-icon">
+                <svg viewBox="0 0 18 15">
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                </svg>
+            </a>
+            <div class="trigger">
+                <a class="page-link" href="../../index.html">About</a>
+                <a class="page-link" href="../blogs.html">Blog</a>
+            </div>
+        </nav>
+    </div>
+</header>
+<div class="page-content">
+    <div class="wrapper">
+        <div class="post">
+            <header class="post-content">
+                <h1 class="post-title">Demystify Concurrent Hash Map</h1>
+                <p class="post-meta">August 23, 2020</p>
+            </header>
+            <article class="post-content">
+                <p>Do you know how ConcurrentHashMap works? If you think that it uses list of Segments in order to
+                    provide ReadWriteLock for each element in NodeEntry array then you are welcome to read this post
+                    about ConcurrentHashMap internals.</p>
+                <figure class="articleimg">
+                    <img src="../../images/lazy_tom.jpg" alt="Lazy Tom">
+                    <figcaption>
+                        Tom &amp; Jerry by William Hanna and Joseph Barbera
+                    </figcaption>
+                </figure>
+                <h1>Lies about CHM</h1>
+                <p>I read a lot of articles and I thought that my knowledge about ConcurrentHashMap(CHM) is right. CHM
+                    has an array of Nodes which stores each key,value pairs and CHM has array of segments which is
+                    used in order to provide a lock for every element of node array. After that I checked the source
+                    code
+                    of Java 11 and I was surprised. This is how Segment class looks like.</p>
+                <img src="../../images/segment.png" alt="Segment">
+                <p>The comment above says <code>Used in previous version</code>. This class is not used in jdk 1.8 and
+                    above because the algorithm was rewritten. There are a lot of blog posts in internet which still
+                    explain CHM using Segments.
+                    <br>
+                    For example this <a target="_blank"
+                                        href="https://medium.com/@mr.anmolsehgal/concurrenthashmap-internal-working-in-java-b2a1a48c7289">blog</a>
+                    from 2018 says
+                </p>
+                <blockquote
+                        cite="https://medium.com/@mr.anmolsehgal/concurrenthashmap-internal-working-in-java-b2a1a48c7289">
+                    So any write operation(remove/put/clear etc) will work in 3 steps:
+                    <br>
+                    1. Wait until it gets the lock on that Segment.
+                    <br>
+                    2. Do the operation.
+                    <br>
+                    3. Release the lock after it.
+                </blockquote>
+                <p>While this <a target="_blank"
+                                 href="https://www.edureka.co/blog/concurrent-hash-map-in-java/">blog</a> from
+                    2019 says</p>
+                <blockquote>
+                    HashMap it does not apply the same lock on each method it uses a separate lock for each method,
+                    <br>
+                    It uses re-entrant lock for this purpose. Similar to HashMap, ConcurrentHashMap has 16 buckets i.e
+                    <br>
+                    segments, to create ConcurrentHashMap with more than 16 buckets it has different constructors.
+                </blockquote>
+                <p>Both blogs describe how it used to work in jdk7. That is why we should check the source code and see
+                    what is really hidden behind this powerful data structure.</p>
+                <h1>Reads</h1>
+                <p>I want to start explanation with documentation about reads</p>
+                <blockquote>
+                    * Retrieval operations (including {@code get}) generally do not<br>
+                    * block, so may overlap with update operations (including {@code put}<br>
+                    * and {@code remove}). Retrievals reflect the results of the most<br>
+                    * recently <em>completed</em> update operations holding upon their<br>
+                    * onset. (More formally, an update operation for a given key bears a<br>
+                    * <em>happens-before</em> relation with any (non-null) retrieval for<br>
+                    * that key reporting the updated value.) For aggregate operations
+                </blockquote>
+                <p>In essence, it says that writes don't block reads(reads are non-blocking) and reads see results of
+                    the most recently write using happens-before guarantee(if you don't know what it means than I would
+                    recommend you
+                    to check out <a target="_blank" href="https://www.youtube.com/watch?v=XgiXKPEILoc&t=1929s">this
+                        wonderful</a>
+                    presentation about it).
+                    <br>
+                    How reads could see the most recent write? Using volatile read. However, as you remember all key
+                    value pairs are stored in Node array and there is no way to read element of the array atomically.
+                    This is how <code>NodeArray</code> is declared in CHM source code<br><code>transient volatile
+                        Node&ltK,V&lt[] table;</code>.
+                    Volatile array means that you could atomically assign new reference to the array but you can't read
+                    each element atomically. However, Java has
+                    a special class called <code>Unsafe</code>
+                    which provides a JNI interface to make atomic reads from any array. With this in mind let's write a
+                    pseudocode for the read method.
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                                class="k">public V get(Object key) {</span>
+     <span>//atomically reads element of the array with given hash using Unsafe</span>
+     <span>if ((node = volatileGetNode(getBucketIndex(hash(key)))) != null) {</span>
+        <span>// check first node</span>
+        <span>if (isKeyEquals(key, hash, node)) {</span>
+        <span>    return node.value;</span>
+        <span>}</span>
+
+        <span>// walk through the rest to find target node because if there are multiple keys with the same hashcode then CHM uses LinkedList</span>
+        <span>while ((node = node.next) != null) {</span>
+        <span>    if (isKeyEquals(key, hash, node))</span>
+        <span>        return node.value;</span>
+        <span>}</span>
+    <span>}</span>
+</code></pre>
+                </figure>
+                <p>As you can see get method doesn't use any locks.</p>
+                <h1>Writes</h1>
+                <p>Now let's take a look at insertion documentation</p>
+                <blockquote>
+                    Insertion (via put or its variants) of the first node in an
+                    <br>
+                    * empty bin is performed by just CASing it to the bin. This is
+                    <br>
+                    * by far the most common case for put operations under most
+                    <br>
+                    * key/hash distributions. Other update operations (insert,
+                    <br>
+                    * delete, and replace) require locks. We do not want to waste
+                    <br>
+                    * the space required to associate a distinct lock object with
+                    <br>
+                    * each bin, so instead use the first node of a bin list itself as
+                    <br>
+                    * a lock. Locking support for these locks relies on builtin
+                    <br>
+                    * "synchronized" monitors.
+                </blockquote>
+                <p>It shows us the reason why Segments array was removed from jdk1.8+. CHM now uses first node of the
+                    NodeEntry array as a lock object in order to save a space that were occupied by array of Segments.
+                    <br>
+                    Apart from it, documentation says that if node will be inserted into the empty bin
+                    (Empty bin means there are no other nodes in the array with the same hashcode) then the node will
+                    be inserted in
+                    lock free way using Compare-And-Swap(CAS).Let's look at the pseudocode of the put method borrowed
+                    from <a href="https://habr.com/en/post/327186/">habr.</a>
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                                class="k">public V put(K key, V value) {</span>
+ Node&ltK, V> node;
+ while (true) {
+    // if bucket is empty try to set new head with cas
+    if(node = volatileGetNode(bucketIndex)) == null) {
+      //if we succeeded to create a new bin then just stop the while loop
+        if (compareAndSwapNode(bucketIndex, new Node<>(key,value)))
+                    break;
+       //otherwise another thread inserted a bin at the same time,
+       // in this case the node is already initialized(condition above that checks for null will fail)
+       // and we can acquire a lock on it
+    } else{
+            //get a lock and just insert new one as the last element of LinkedList
+            synchronized (node) {
+                Node nextNode = node;
+                while(next.next != null){
+                    nextNode = nextNode.next;
+                }
+                nextNode.next = new Node(key,value);
+            }
+        }
+ }
+                        </code>
+                        </pre>
+                </figure>
+                <p>So when two threads tries to insert nodes with the same hashcodes at empty bin, only one of them will
+                    succeed and
+                    the second one will acquire a lock on a newly created node in order to insert a second node into the
+                    end of
+                    the Linkedlist.</p>
+                <h1>Lambda methods</h1>
+                <p>In addition to get and put , CHM has a lot of methods that accept a lambda as an argument such
+                    as <code>computeIfAbsent,computeIfPresent,merge</code>. All those methods are thread safe.
+                    I would like to mention method merge which is really elegant and not everyone know about it.
+                    I firstly found this method when I tried to solve this problem from <a
+                            href="https://leetcode.com/problems/substring-with-concatenation-of-all-words/">leetcode</a>.
+                    Let's say you have a line of words separated by white spaces. You want to count how many times each
+                    word is presented
+                    in this line ,that is why you will use a map where key is word and
+                    value is an integer that shows how many times this word was repeated in this line. The code below
+                    shows
+                    you non thread safe version of the solution
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                                class="k">void count(String line){</span>
+         ConcurrentHashMap&ltString,Integer> counts = new CHM();
+                for(String word : line.split(" "){
+                     count.putIfAbsent(word,1);
+                     count.computeIfPresent(word,(k,v)->v+1);
+              }
+                        </code>
+                        </pre>
+                </figure>
+                <p>This code is not thread safe because it uses two atomic operations in separate. In order to protect
+                    this code from threads intervention , method has to be declared as synchonized.
+                    However , there is more elegant way to replace two method calls with one using <code>merge</code>.
+                    <br>
+                    This is how the same code looks like using merge<code>count.merge(word,1,Integer::sum)</code>. Merge
+                    takes 3
+                    parameters.
+                    First one is key, second one is value and third parameter is lambda which will be used if given key
+                    value
+                    pair already exists in Map, otherwise method will work as a simple put. In our case, it will simply
+                    add 1 to the value if word already exists.
+                </p>
+                <h1>Other mysteries</h1>
+                <p>Apart from get and put CHM does a great job to :</p>
+                <ul>
+                    <li>Lazily initialize NodeEntry array</li>
+                    <li>Resize NodeEntry array</li>
+                    <li>Replace LinkedList with RedBlackTree if amount of nodes with the same hashcode is bigger than
+                        threshold
+                    </li>
+                </ul>
+                <p>Finally there is another ConcurrentMap implementation in standard jdk called ConcurrentSkipList which
+                    uses SkipList data structure under the hood. I will cover internals soon in a separate blog
+                    post.</p>
+                <h1>Resources</h1>
+                <ol>
+                    <li><a target="_blank"
+                           href="https://medium.com/@sergeykuptsov/how-it-works-in-java-concurrenthashmap-7fff8722bb72">Medium</a>
+                    </li>
+                    <li>
+                        <a tabindex="_blank"
+                           href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ConcurrentHashMap.html">
+                            Oracle documentation</a>
+                    </li>
+                </ol>
+            </article>
+        </div>
+    </div>
+</div>
+<footer class="site-footer">
+    <div class="centered">
+        © strogiyotec.github.io 2020
+        <span>Website last updated at: <span id="lastupdated"></span></span>
+    </div>
+    <script type="application/javascript" src="../../js/updated_at.js"></script>
+</footer>
+</body>
+</html>
