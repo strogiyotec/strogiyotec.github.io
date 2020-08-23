@@ -215,7 +215,7 @@
                     NodeEntry array as a lock object in order to save a space that were occupied by array of Segments.
                     In jdk1.7 ,you could pass parameter to CHM constructor called concurrenyLevel. This variable specifies the initial size of
                     Segments array. However, as jdk1.8 doesn't use Segments this parameter is ignored. It's still present in constructor for
-                    backward compatibilities with old java versions
+                    backward compatibilities with old java versions.
                     <br>
                     Apart from it, documentation says that if node will be inserted into the empty bin
                     (Empty bin means there are no other nodes in the array with the same hashcode) then the node will
