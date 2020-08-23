@@ -213,7 +213,7 @@
                 </blockquote>
                 <p>It shows us the reason why Segments array was removed from jdk1.8+. CHM now uses first node of the
                     NodeEntry array as a lock object in order to save a space that were occupied by array of Segments.
-                    In jdk1.7 ,you could pass parameter to CHM constructor called concurrenyLevel. This variable specifies the addition size of
+                    In jdk1.7 ,you could pass parameter to CHM constructor called concurrenyLevel. This variable specifies the initial size of
                     Segments array. However, as jdk1.8 doesn't use Segments this parameter is ignored. It's still present in constructor for
                     backward compatibilities with old java versions
                     <br>
