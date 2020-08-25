@@ -107,15 +107,19 @@
                     </figcaption>
                 </figure>
                 <h1>Lies about CHM</h1>
-                <p>I read a lot of articles related to Concurrent map internals and I thought that my knowledge about ConcurrentHashMap(CHM) is right. CHM
-                    has an array of Nodes which stores each key,value pairs and CHM has array of segments which is
-                    used in order to provide a lock for every element of node array. After that I checked the source
+                <p>I read a lot of articles related to Concurrent hash map(CHM) internals ,however most of them give you
+                    a wrong
+                    idea how it really works. I used to think that CHM
+                    has an array of Nodes which stores each key,value pairs(and this is right) and CHM has array of
+                    segments which is
+                    used in order to provide ReadWriteLock for every element of node array. Recently I checked the
+                    source
                     code
                     of Java 11 and I was surprised. This is how Segment class looks like.</p>
                 <img src="../../images/segment.png" alt="Segment">
                 <p>The comment above says <code>Used in previous version</code>. This class is not used in jdk 1.8 and
                     above because the algorithm was rewritten. There are a lot of blog posts in internet which still
-                    explain CHM using Segments.
+                    explain CHM using Segments and Locks.
                     <br>
                     For example this <a target="_blank"
                                         href="https://medium.com/@mr.anmolsehgal/concurrenthashmap-internal-working-in-java-b2a1a48c7289">blog</a>
@@ -189,7 +193,7 @@
     <span>}</span>
 </code></pre>
                 </figure>
-                <p>As you can see get method doesn't use any locks.</p>
+                <p>As you can see get method doesn't use any locks. It atomically reads the element of Node array</p>
                 <h1>Writes</h1>
                 <p>Now let's take a look at insertion documentation</p>
                 <blockquote>
@@ -213,12 +217,15 @@
                 </blockquote>
                 <p>It shows us the reason why Segments array was removed from jdk1.8+. CHM now uses first node of the
                     NodeEntry array as a lock object in order to save a space that were occupied by array of Segments.
-                    In jdk1.7 ,you could pass parameter to CHM constructor called concurrenyLevel. This variable specifies the initial size of
-                    Segments array. However, as jdk1.8 doesn't use Segments this parameter is ignored. It's still present in constructor for
+                    In jdk1.7 ,you could pass parameter to CHM constructor called concurrenyLevel. This variable
+                    specifies the initial size of
+                    Segments array. However, as jdk1.8 doesn't use Segments this parameter is ignored. It's still
+                    present in constructor for
                     backward compatibilities with old java versions.
                     <br>
                     Apart from it, documentation says that if node will be inserted into the empty bin
-                    (Empty bin means there are no other nodes in the array with the same hashcode) then the node will
+                    (Empty bin means there are no other nodes in the array at index that equals to the hashcode of new
+                    key) then the node will
                     be inserted in
                     lock free way using Compare-And-Swap(CAS).Let's look at the pseudocode of the put method borrowed
                     from <a href="https://habr.com/en/post/327186/">habr.</a>
@@ -258,12 +265,13 @@
                 <h1>Lambda methods</h1>
                 <p>In addition to get and put , CHM has a lot of methods that accept a lambda as an argument such
                     as <code>computeIfAbsent,computeIfPresent,merge</code>. All those methods are thread safe.
-                    I would like to mention method merge which is really elegant and not everyone know about it.
+                    I would like to mention method <code>merge</code> which is really elegant and not everyone know
+                    about it.
                     I firstly found this method when I tried to solve this problem from <a
                             href="https://leetcode.com/problems/substring-with-concatenation-of-all-words/">leetcode</a>.
                     Let's say you have a line of words separated by white spaces. You want to count how many times each
                     word is presented
-                    in this line ,that is why you will use a map where key is word and
+                    in this line ,that is why you will use a map where key is a word and
                     value is an integer that shows how many times this word was repeated in this line. The code below
                     shows
                     you non thread safe version of the solution
@@ -286,10 +294,10 @@
                     This is how the same code looks like using merge<code>count.merge(word,1,Integer::sum)</code>. Merge
                     takes 3
                     parameters.
-                    First one is key, second one is value and third parameter is lambda which will be used if given key
-                    value
+                    First one is key, second one is value and the last one is lambda which will be used if given
+                    key-value
                     pair already exists in Map, otherwise method will work as a simple put. In our case, it will simply
-                    add 1 to the value if word already exists.
+                    increment the value if word already exists.
                 </p>
                 <h1>Other mysteries</h1>
                 <p>Apart from get and put CHM does a great job to :</p>
@@ -297,7 +305,7 @@
                     <li>Lazily initialize NodeEntry array</li>
                     <li>Resize NodeEntry array</li>
                     <li>Replace LinkedList with RedBlackTree if amount of nodes with the same hashcode is bigger than
-                        threshold
+                        threshold(usually if size of LinkedList is bigger than 8)
                     </li>
                 </ul>
                 <p>Finally there is another ConcurrentMap implementation in standard jdk called ConcurrentSkipList which
