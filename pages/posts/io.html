@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta property="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta property="description" content="java,io,kernel">
+    <meta property="og:title" content="Nodejs vs Java it's all about IO"/>
+    <meta property="og:description" content="Nodejs is faster than Java? it's all about IO"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:site_name" content="Almas Abdrazak"/>
+    <meta property="og:image"
+          content="https://strogiyotec.github.io/images/tom_mouse.jpg"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="author" content="Almas Abdrazak">
+    <title>Nodejs is faster than Java? it's all about IO</title>
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async
+            src="https://www.googletagmanager.com/gtag/js?id=UA-163711919-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'UA-163711919-1');
+    </script>
+</head>
+<body>
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="../../images/author.png" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github"
+                       href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line"
+                       href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Schedule a meeting with me "
+                       href="https://calendly.com/aalmas">
+                        <i class="fa fa-calendar fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Check my stack-overflow account"
+                       href="https://stackoverflow.com/users/8019439/almas-abdrazak">
+                        <i class="fa fa-stack-overflow fa-lg"
+                           aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="Follow me on medium"
+                       href="https://medium.com/@almas337519">
+                        <i class="fa fa-medium fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="My LinkedIn account"
+                       href="https://www.linkedin.com/in/almas-abdrazak-01882515b/">
+                        <i class="fa fa-linkedin fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <nav class="site-nav">
+            <a href="#" class="menu-icon">
+                <svg viewBox="0 0 18 15">
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                </svg>
+            </a>
+            <div class="trigger">
+                <a class="page-link" href="../../index.html">About</a>
+                <a class="page-link" href="../blogs.html">Blog</a>
+                <a class="page-link" href="../../pages/resume.html">Resume</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page-content">
+    <div class="wrapper">
+        <div class="post">
+            <header class="post-content">
+                <h1 class="post-title">Nodejs is faster than Java? it's all about IO</h1>
+                <p class="post-meta">October 10, 2020</p>
+            </header>
+            <article class="post-content">
+                <p>In this post I will talk about kernel, io and all these stuff
+                    but let's start with simple question. Nodejs is faster than
+                    Java? I've heard it a lot from my
+                    friends and from forums on the Internet. Let's make it
+                    clear,
+                    I am a big fan of Java ,specifically Java Runtime.However, I
+                    don't
+                    like Annotation driven development though.Let me explain
+                    what it means for Java to be slower.A
+                    little spoiler, it's all about IO.</p>
+                <figure class="articleimg">
+                    <img src="../../images/tom_mouse.jpg"
+                         alt="Small Tom">
+                    <figcaption>
+                        Tom &amp; Jerry by William Hanna and Joseph Barbera
+                    </figcaption>
+                </figure>
+                <h1>Why is it slower?</h1>
+                <p>Let's understand why Java is slower than NodeJs. First of
+                    all what do we mean by saying that one language is slower
+                    than another. Usually people talk about how fast a language
+                    could perform a CPU intensive task. Something like matrix
+                    multiplication or finding n-th number in Fibonacci
+                    sequence. In this case Java beats Nodejs and even c++
+                    (sometimes).Why ? Because of JIT. Java is a compiled
+                    language,
+                    it is compiled into a specific language called bytecode. JVM
+                    interprets this bytecode instruction by instruction which
+                    is of course slower than executing compiled machine code.
+                    However JVM has
+                    two JIT compilers that periodically compile hot methods into
+                    machine specific code. The second JIT is called C2 and it's
+                    able to store statistics about each method(thanks to
+                    Reflection) that allows it to
+                    imply
+                    a lot of optimizations in a compiled code. I don't wanna go
+                    deep in this topic because I am mainly focusing in non CPU
+                    related tasks , but if you are interested in JVM internals
+                    then you have to watch <a
+                        href="https://www.youtube.com/watch?v=oH4_unx8eJQ&t=1147s">this</a>
+                    excellent video by Douglas Hawkins</p>
+                <p>Okay, now we know that Java beats Nodejs in terms of CPU
+                    intensive tasks, then why are there so many articles
+                    about big companies moving to Node? I am not the first one
+                    to tell you about it, but Nodejs is faster because it
+                    doesn't require a lot of user level threads(the ones that
+                    you create by using <code>new Thread(runnable)</code>) in
+                    order to provide a high performance backend server. You
+                    probably heard
+                    that Node js is a single threaded and it uses the technique
+                    called Event Loop in order to handle all incoming requests.
+                    If you are a Java developer then you probably think "What
+                    the
+                    hell, one thread?".
+                    Yes, this question bothered me for a long time .As I said
+                    before , I am a Java developer.I got used to think about
+                    concurrency in terms of Thread Pools. And when someone tells
+                    me
+                    that
+                    a backend server could have only one thread and still
+                    perform
+                    better than thread pools I just laughed at them. But really,
+                    one thread ?
+                    How one thread can handle all the traffic. Let's go deeper
+                    and understand what an Event Loop is.
+                </p>
+                <h1>Event Loop</h1>
+                <p>Let's look at this picture that i sincerely borrowed from
+                    Internet</p>
+                <img
+                    src="https://cdn-images-1.medium.com/max/1600/1*fBEbMgk6--QtIUUed3KcMQ.png"
+                    alt="Event loop">
+                <p>We have incoming requests and one thread that handles them,
+                    if a
+                    task is heavy(takes a lot of time) then we assign it to some
+                    sort of thread pool
+                    and create a callback ,otherwise , the event loop will be
+                    blocked and we won't be able to process new clients. When
+                    the task is finished , the thread pool
+                    puts a result of this task back to the event loop , then the
+                    event
+                    loop will eventually execute a callback
+                    . If you need a further explanation then <a
+                        href="https://www.youtube.com/watch?v=8aGhZQkoFbQ">Philip
+                        Roberts</a> will explain it much better than I can</p>
+                <p>Now the tricky question, Ok event loop, but can't we use it
+                    in Java ? We can indeed ,moreover Servlet containers such as
+                    Tomcat use Event Loop by default. What? Yes, the default
+                    connector for Tomcat is based on Java nio which has its own
+                    event loop under the hood. Ok , if even Tomcat can do it
+                    then what is the purpose of Node? Let's now switch to
+                    Tomcat(I chose Tomcat but other servlet containers have the
+                    same principles)</p>
+                <h1>Tomcat</h1>
+                <p>How Tomcat NIO Connector works. First of all we can specify
+                    the amount of event loop threads that will handle incoming
+                    requests
+                    (According to my experience, one thread will be enough).
+                    After that, when connection with client has been
+                    established, event loop puts a task into a queue which is
+                    monitored by workers thread
+                    pool.Tomcat pulls a task from the queue and assigns a worker
+                    thread to it. All application logic (Methods inside your
+                    Controllers in Spring) is executed using these
+                    threads. The
+                    problem here is that application logic usually needs
+                    to do some IO tasks such as calling cache service,
+                    sending requests to database, Http calls to other services
+                    and so on. In most cases, these requests will block
+                    worker thread. When a worker thread is waiting for the
+                    Database to
+                    respond it doesn't do anything , as a result, if all worker
+                    threads are waiting on IO, then Tomcat can't process new
+                    tasks from the event loop. The only solution for Servlet
+                    containers prior to Servlet 3.1 specification was to
+                    increase amount of worker threads, but again , most of them
+                    won't do anything but block on IO (BTW I want
+                    to write another small blog about
+                    Async servlets, because most developers don't really
+                    understand when those servlets could help them to improve
+                    performance).
+                </p>
+                <p>Ok, finally the question that I asked myself so many times,
+                    how in the hell nodejs uses threads without blocking them,
+                    and I wanna brag myself, I found the answer</p>
+                <h1>Kernel is the only source of truth</h1>
+                <p>You see, NodeJs and Java are just languages, they don't
+                    know how to write data to disk , or how to read it.They
+                    don't even know how to
+                    create new threads. They don't, but Kernel does. What is
+                    Kernel ? First of all, I will explain how it works in Linux
+                    because I have no clue what Mac and Windows do(honestly, I
+                    am just not interested). Kernel is a herd of Linux. It's a
+                    layer between user processes and hardware. User processes
+                    are not allowed to work with Hardware. Then how can we
+                    read/write from a file? Fairly simple, Kernel provides a
+                    public API called system calls. User processes have to call
+                    these "system calls" and Kernel will do what it is supposed
+                    to do. So programming languages are using these system
+                    calls. How to check it? Let's write a small Java program
+                    that reads a file called input.txt.This file contains only
+                    two words <code>Hello world</code></p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java">
+try (FileInputStream stream = new FileInputStream("input.txt")) {
+   int content;
+   while ((content = stream.read()) != -1) {
+        // just read file byte by byte
+      }
+   }
+                        </code>
+                        </pre>
+                </figure>
+                <p>In order to see all system calls that program uses we can use
+                    a cli utility called <a
+                        href="https://github.com/strace/strace">strace</a>(most
+                    Linux distros include this utility by default so you don't
+                    have to install it). If I compile the program above into a
+                    native executable using graal and then run this command
+                    <code>strace ./main 2> my_log_file</code> I will see the
+                    following output in log file.
+                </p>
+                <pre><code>
+openat(AT_FDCWD, "input.txt", O_RDONLY) = 3
+fstat(3, {st_mode=S_IFREG|0664, st_size=12, ...}) = 0
+read(3, "H", 1)                         = 1
+read(3, "e", 1)                         = 1
+read(3, "l", 1)                         = 1
+read(3, "l", 1)                         = 1
+read(3, "o", 1)                         = 1
+read(3, " ", 1)                         = 1
+read(3, "w", 1)                         = 1
+read(3, "o", 1)                         = 1
+read(3, "r", 1)                         = 1
+read(3, "l", 1)                         = 1
+read(3, "d", 1)                         = 1
+read(3, "\n", 1)                        = 1
+
+                </code></pre>
+                <p>Now we know that Java calls a system method called
+                    read,however read takes a file descriptor(in my case it was
+                    number 3) created by <code>openat</code>
+                    call, let's check the
+                    manual for this system call <code>man openat</code>.
+                    You will notice that openat creates a blocking file
+                    descriptor by default. That's it. Here is the answer, all
+                    Java
+                    classes that inherit Input/Output streams
+                    use blocking system calls.
+                </p>
+                <h1>File Descriptors</h1>
+                <p>Remember when I told you about event loop handling incoming
+                    requests ?
+                    What it really does is event loop thread makes a system
+                    call in order to create a file descriptor for incoming
+                    socket connections. In Unix systems everything is file,
+                    including sockets.
+                    OS creates a unique number called file descriptor and uses
+                    it as a file identifier(system calls such as read and write
+                    take file descriptor in order to understand from what file
+                    to read or write to). Technically , there is no limit on
+                    amount of file descriptors, you can open as much as 10K file
+                    descriptors in parallel , the only obstacle is RAM,
+                    because each file descriptor is an internal structure that
+                    takes a memory to be created(Now you can understand how
+                    nginx is able to handle 10K parallel requests, it uses file
+                    descriptors).
+                </p>
+                <h1>Epoll</h1>
+                <p>The way Tomcat's Nio Connector works is approximately the
+                    same as how NodeJs works. Then why Node is faster.The tricky
+                    part is , NodeJs doesn't use blocking calls. Of course you
+                    can do it , but it's considered as anti pattern. Worker
+                    threads of Nodejs don't have to wait for IO and therefore
+                    use CPU more efficiently than blocked threads from servlet
+                    container.In order to
+                    implement an event loop ,nodejs uses a C++ library
+                    called
+                    libuv, this library is a cross platform, but in Linux it
+                    uses
+                    a system call known as <code>epoll</code>.
+                    Again , you can check a manual page related to epoll but
+                    here I will give you a brief explanation on how it works.
+                    <br>
+                    Epoll is a system call that allows us to monitor sockets
+                    for new data. So , the kernel could monitor all file
+                    descriptors, and if some of them have new data then we can
+                    use a specific system call in order to get these file
+                    descriptors. Here is a
+                    brief example on C
+                </p>
+                <pre><code>
+  //create epoll
+  int epoll_fd = epoll_create1(0);
+  //event loop
+  while(running)
+  {
+    printf("\nPolling for input...\n");
+    //ask kernel which file descriptors have a new data, this call is non blocking
+    event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, 30000);
+    printf("%d ready events\n", event_count);
+    for(i = 0; i < event_count; i++)
+    {
+           //work with available data
+			...
+    }
+  }
+                </code></pre>
+                <p> Our event loop asks
+                    kernel if some file descriptors have a new data, if so then
+                    we work with these data, if no, then kernel returns 0 and
+                    main thread doesn't have to wait
+                    .Also we have a <code>for</code> loop that works with data,
+                    in this
+                    loop we can assign heavy tasks to some sort of thread pool
+                    because we don't want to block the main thread. When a task
+                    is
+                    completed we can send a response to a socket using a file
+                    descriptor(remember, it's just an id). Under the
+                    hood , all event loop
+                    based servers use
+                    these system calls in order to provide non blocking
+                    behavior.</p>
+                <h1>Java NIO and Netty</h1>
+                <p>Starting from Java 5, we have a new package named NIO. Java
+                    Nio gives us an API to use non blocking system
+                    calls . So, we have a NIO package, could
+                    we improve the servlet problem described above where most
+                    worker threads are waiting on blocking system calls ? The
+                    answer is, it depends. Java is an old language and as I said
+                    before,
+                    if you use <code>InputStream</code> class , then your
+                    threads
+                    will be blocked and I assure you ,you do, the majority of
+                    Java
+                    libraries use this old class from Java 1. Moreover, JDBC API
+                    uses
+                    blocking sockets, so all interaction with databases from
+                    Java will be blocking. There are some projects aimed at
+                    rewriting JDBC in order to use non blocking sockets.
+                    The one that I contribute to and most interested in is
+                    <a href="https://github.com/r2dbc/r2dbc-spi">r2dbc</a>. With
+                    this library we can send requests to Databases and get a
+                    response in forms of Reactive interfaces(Mono or Flux).
+                    <br>
+                    However, I want to mention that Java ecosystem is huge , and
+                    there are a lot of frameworks that don't implement servlet
+                    specification. My favorite one is <a
+                        href="https://vertx.io/">Vert.x</a>. It resembles a
+                    Nodejs cause its based on exactly the same algorithms but
+                    it uses
+                    Java Runtime(in reality , you can use Vert.x with
+                    JavaScript, if you are interested check the docs). Its
+                    creator ,Tim Fox wanted to bring a
+                    powerful , Reactive framework to Java world and I assure you
+                    he did indeed.
+                </p>
+                <h1>Some words about project Reactor</h1>
+                <p>One of the newest trends in Java backend development is a
+                    project called Reactive Spring and Project Reactor.
+                    Now, as you know the main disadvantage of servlets and
+                    blocking streams, it's easy to understand what this project
+                    tries to solve. It provides a functional API to write a non
+                    blocking backend
+                    (of course there are more things
+                    such as back pressure, but the core idea is that
+                    code must be non blocking).
+                </p>
+                <h1>Conclusion</h1>
+                <p>I hope that my explanation was clear enough. I spend an
+                    enormous
+                    amount of time in order to understand how it really works
+                    and I want to thank <a
+                        href="https://eli.thegreenplace.net/pages/about">Eli
+                        Bendersky</a> for his wonderful blog with detailed
+                    explanation on concurrent servers and I want to recommend a
+                    wonderful
+                    book called <a
+                        href="https://www.amazon.com/Linux-Programming-Interface-System-Handbook-ebook/dp/B004OEJMZM">The
+                        Linux Programming Interface</a> . If you are
+                    interested in Kernel and system calls it has, then you will
+                    find all answers in this book.
+                </p>
+            </article>
+        </div>
+    </div>
+</div>
+<footer class="site-footer">
+    <div class="centered">
+        © strogiyotec.github.io 2020
+        <span>Website last updated at: <span id="lastupdated"></span></span>
+    </div>
+    <script type="application/javascript" src="../../js/updated_at.js"></script>
+</footer>
+</body>
+</html>
