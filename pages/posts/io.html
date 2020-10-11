@@ -7,7 +7,7 @@
     <meta property="description" content="java,io,kernel">
     <meta property="og:title" content="Nodejs vs Java it's all about IO"/>
     <meta property="og:description"
-          content="Nodejs is faster than Java? it's all about IO"/>
+          content="Nodejs is faster than Java? It's all about IO"/>
     <meta property="og:type" content="article"/>
     <meta property="og:site_name" content="Almas Abdrazak"/>
     <meta property="og:image"
@@ -101,13 +101,13 @@
     <div class="wrapper">
         <div class="post">
             <header class="post-content">
-                <h1 class="post-title">Nodejs is faster than Java? it's all
+                <h1 class="post-title">Nodejs is faster than Java? It's all
                     about IO</h1>
                 <p class="post-meta">October 10, 2020</p>
             </header>
             <article class="post-content">
                 <p>In this post I will talk about kernel, io and all these stuff
-                    but let's start with simple question. Nodejs is faster than
+                    but let's start with a simple question. Nodejs is faster than
                     Java? I've heard it a lot from my
                     friends and from forums on the Internet. Let's make it
                     clear,
@@ -135,13 +135,13 @@
                     it is compiled into a specific language called bytecode. JVM
                     interprets this bytecode instruction by instruction which
                     is of course slower than executing compiled machine code.
-                    However JVM has
+                    However, JVM has
                     two JIT compilers that periodically compile hot methods into
                     machine specific code. The second JIT is called C2 and it's
                     able to store statistics about each method(thanks to
                     Reflection) that allows it to
                     imply
-                    a lot of optimizations into a compiled code. I don't wanna
+                    a lot of optimizations into a compiled code. I don't want to
                     go
                     deep in this topic because I am mainly focusing in non CPU
                     related tasks , but if you are interested in JVM internals
@@ -162,7 +162,7 @@
                     the
                     hell, one thread?".
                     Yes, this question bothered me for a long time .As I said
-                    before , I am a Java developer.I got used to think about
+                    before , I am a Java developer.I got used to thinking about
                     concurrency in terms of Thread Pools. And when someone tells
                     me
                     that
@@ -174,7 +174,7 @@
                     and understand what an Event Loop is.
                 </p>
                 <h1>Event Loop</h1>
-                <p>Let's look at this picture that i sincerely borrowed from
+                <p>Let's look at this picture that I sincerely borrowed from
                     Internet</p>
                 <img
                     src="https://cdn-images-1.medium.com/max/1600/1*fBEbMgk6--QtIUUed3KcMQ.png"
@@ -184,7 +184,7 @@
                     task is heavy(takes a lot of time) then we assign it to some
                     sort of thread pool
                     and create a callback ,otherwise , the event loop will be
-                    blocked and we won't be able to handle new connections. When
+                    blocked, and we won't be able to handle new connections. When
                     the task is finished , the thread pool
                     puts a result of this task back to the event loop , then the
                     event
@@ -205,9 +205,9 @@
                     the amount of event loop threads that will handle incoming
                     requests
                     (According to my experience, one thread will be enough).
-                    After that, when connection with client has been
-                    established, event loop puts a task into a queue which is
-                    monitored by thread
+                    After that, when connection with the client has been
+                    established, the event loop puts a task into a queue which is
+                    monitored by a thread
                     pool of worker threads.Thread pool takes a task from the
                     queue and assigns a worker
                     thread to it. All application logic (Methods inside your
@@ -235,7 +235,7 @@
                 </p>
                 <p>Ok, finally the question that I asked myself so many times,
                     how in the hell nodejs uses threads without blocking them,
-                    and I wanna brag myself, I found the answer.</p>
+                    and I want to brag myself, I found the answer.</p>
                 <h1>Kernel is the only source of truth</h1>
                 <p>You see, NodeJs and Java are just languages, they don't
                     know how to write data to disk , or how to read it.They
@@ -304,8 +304,8 @@ read(3, "\n", 1)                        = 1
                     You will notice that openat creates a blocking file
                     descriptor by default.It means that user thread that uses
                     file descriptor created by openat will have to wait for
-                    response
-                    from kernel, in other words, thread will be blocked. That's
+                    a response
+                    from the kernel, in other words, thread will be blocked. That's
                     it. Here is the answer, all
                     Java
                     classes that inherit Input/Output streams
@@ -326,14 +326,14 @@ read(3, "\n", 1)                        = 1
                     descriptors in parallel , the only obstacle is RAM,
                     because each file descriptor is an internal structure that
                     occupies some memory (Now you can understand how
-                    nginx is able to handle 10K parallel requests, it uses file
+                    nginx is able to handle 10K parallel requests, it uses a file
                     descriptors).
                 </p>
                 <h1>Epoll</h1>
                 <p>The way Tomcat's Nio Connector works is approximately the
                     same as how NodeJs works. Then why Node is faster.The tricky
-                    part is , NodeJs doesn't use blocking calls. Of course you
-                    can do it , but it's considered as anti pattern. Worker
+                    part is , NodeJs doesn't use blocking calls. Of course, you
+                    can do it , but it's considered as antipattern. Worker
                     threads of Nodejs don't have to wait for IO and therefore
                     use CPU more efficiently than blocked threads from servlet
                     container.In order to
@@ -404,8 +404,8 @@ read(3, "\n", 1)                        = 1
                     rewriting JDBC in order to use non blocking sockets.
                     The one that I contribute to and most interested in is
                     <a href="https://github.com/r2dbc/r2dbc-spi">r2dbc</a>. With
-                    this library we can send non blocking request to Database and get a
-                    response in form of Reactive interfaces(Mono or Flux).
+                    this library we can send non blocking requests to Database and get a
+                    response in the form of Reactive interfaces(Mono or Flux).
                     <br>
                     However, I want to mention that Java ecosystem is huge , and
                     there are a lot of frameworks that don't implement servlet
@@ -414,7 +414,7 @@ read(3, "\n", 1)                        = 1
                     Nodejs cause its based on exactly the same algorithms but
                     it uses
                     Java Runtime(in reality , you can use Vert.x with
-                    JavaScript, if you are interested check the docs). Its
+                    JavaScript, if you are interested check the docs). It's
                     creator ,Tim Fox wanted to bring a
                     powerful , Reactive framework to Java world and I assure you
                     he did indeed.
