@@ -126,10 +126,14 @@
                 <h1>Why is it slower?</h1>
                 <p>Let's understand why Java is slower than NodeJs. First of
                     all what do we mean by saying that one language is slower
-                    than another. Usually people talk about how fast a language
+                    than another. Well language itself can't be fast, 
+					speed depends on the runtime.
+					In this blog I will talk about Hotspot and OpenJdk runtime which implies that 
+					Java's runtime includes interpeter and two 
+					JIT compilers. Usually people talk about how fast a language
                     could perform a CPU intensive task. Something like matrix
                     multiplication or finding n-th number in Fibonacci
-                    sequence. In this case Java beats Nodejs and even c++
+                    sequence. In this case Java(Hotspot) beats Nodejs and even c++
                     (sometimes).Why ? Because of JIT. Java is a compiled
                     language,
                     it is compiled into a specific language called bytecode. JVM
@@ -137,17 +141,18 @@
                     is of course slower than executing compiled machine code.
                     However, JVM has
                     two JIT compilers that periodically compile hot methods into
-                    machine specific code. The second JIT is called C2 and it's
-                    able to store statistics about each method(thanks to
-                    Reflection) that allows it to
-                    imply
-                    a lot of optimizations into a compiled code. I don't want to
+                    machine specific code. 
+					For this to work , Hotspot stores statistics(in easiest case just counters) 
+					for each method,loop. Using these statistics, Compilers decide what to compile 
+					and how to optimize compiled code
+					(Remove unused memory allocations, unloop statements and so on).
+                    I don't want to
                     go
                     deep in this topic because I am mainly focusing in non CPU
-                    related tasks , but if you are interested in JVM internals
+                    related tasks , but if you are interested in JIT internals
                     then you have to watch <a
                         href="https://www.youtube.com/watch?v=oH4_unx8eJQ&t=1147s">this</a>
-                    excellent video by Douglas Hawkins</p>
+                    excellent video by Douglas Hawkins.</p>
                 <p>Okay, now we know that Java beats Nodejs in terms of CPU
                     intensive tasks, then why are there so many articles
                     about big companies moving to Node? I am not the first one
