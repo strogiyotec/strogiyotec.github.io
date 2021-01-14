@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta property="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta property="description" content="postgres">
+    <meta property="og:title"
+          content="Postgres, The Bare minimum you should know"/>
+    <meta property="og:description"
+          content="Postgres, The Bare minimum you should know"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:site_name" content="Almas Abdrazak"/>
+    <meta property="og:image"
+          content="https://strogiyotec.github.io/images/tom_mouse.jpg"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="author" content="Almas Abdrazak">
+    <title>Postgres, The Bare minimum you should know</title>
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async
+            src="https://www.googletagmanager.com/gtag/js?id=UA-163711919-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'UA-163711919-1');
+    </script>
+</head>
+<body>
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="../../images/author.png" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github"
+                       href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line"
+                       href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Schedule a meeting with me "
+                       href="https://calendly.com/aalmas">
+                        <i class="fa fa-calendar fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Check my stack-overflow account"
+                       href="https://stackoverflow.com/users/8019439/almas-abdrazak">
+                        <i class="fa fa-stack-overflow fa-lg"
+                           aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="Follow me on medium"
+                       href="https://medium.com/@almas337519">
+                        <i class="fa fa-medium fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="My LinkedIn account"
+                       href="https://www.linkedin.com/in/almas-abdrazak-01882515b/">
+                        <i class="fa fa-linkedin fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <nav class="site-nav">
+            <a href="#" class="menu-icon">
+                <svg viewBox="0 0 18 15">
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                </svg>
+            </a>
+            <div class="trigger">
+                <a class="page-link" href="../../index.html">About</a>
+                <a class="page-link" href="../blogs.html">Blog</a>
+                <a class="page-link" href="../../pages/resume.html">Resume</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page-content">
+    <div class="wrapper">
+        <div class="post">
+            <header class="post-content">
+                <h1 class="post-title">Postgres, The Bare minimum you should
+                    know</h1>
+                <p class="post-meta">January 10, 2021</p>
+            </header>
+            <article class="post-content">
+                <p>My DBMS of choice is Postgres. I have been using it for the
+                    last three years and every time I discover some internal
+                    parts which are quite amazing and unique for Postgres.
+                    This blog post is some sort of a cheetsheet on How Postgres
+                    works internally
+                    Without going too deep into implementation details. If you
+                    wanna go deeper then
+                    search for highlighted keywords in the official <a
+                        href="https://www.postgresql.org/docs/">Postgres
+                        documentation</a>
+                    . Everything I will cover here is related
+                    to <strong>Postgres 12</strong>. Also I am not a Postgres
+                    developer and everything I will describe here is based on
+                    my understanding gained from Blog posts and
+                    documentation. I can
+                    easily make mistakes so don't hesitate to tell me about it
+                    so
+                    I can fix them. Okay then , Let's start.
+                </p>
+                <figure class="articleimg">
+                    <img src="../../images/tom_mouse.jpg"
+                         alt="Small Tom">
+                    <figcaption>
+                        Tom &amp; Jerry by William Hanna and Joseph Barbera
+                    </figcaption>
+                </figure>
+                <h1>Where is my data Dude ?</h1>
+                <p>Let's start with data. Where Postgres stores databases and
+                    tables. If you didn't set an environmental variable
+                    <code>$PGDATA</code> then your Database(most probably ,I
+                    only
+                    tested it in Debian) is stored in
+                    <code>/var/lib/postgresql/12/main</code> directory. Now
+                    let's go inside <code>base</code> folder.
+                    It contains a bunch of number based subfolders . Those
+                    are database object ids(
+                    <mark><a
+                        href="https://www.postgresql.org/docs/12/datatype-oid.html">OIDS</a>
+                    </mark>
+                    ).
+                    Every folder here represents a database. Let's say I have a
+                    database called
+                    <mark>test</mark>
+                    . If I run this query using
+                    <mark>psql</mark>
+                    , I can get an
+                    associated OID of this database.
+                    <br>
+                    <code>
+                        SELECT datname, oid FROM pg_database WHERE datname =
+                        'test';
+                    </code>
+                    <br>
+                    In my case this number was
+                    <mark>16384</mark>
+                    . Check if
+                    you have a folder with this number(in your case this number
+                    will be different). Now let's
+                    <mark>cd</mark>
+                    into folder with this number and you will see a bunch of
+                    files. Some of them have suffixes <code>_fsm,_vm</code>. We
+                    will talk about those files later. Other files(without
+                    suffixes) are labeled using numbers. Every file without a
+                    suffix is
+                    a separate table. Let's check it.
+                    In my
+                    <mark>test</mark>
+                    database I have a table called
+                    <mark>users</mark>
+                    . Let's see which file is associated with this table.
+                    <br>
+                    <code>
+                        \connect test;
+                        <br>
+                        SELECT relfilenode FROM pg_class WHERE
+                        relname = 'users';
+                    </code>
+                    <br>
+                    In my case it's
+                    <mark>17178</mark>
+                    . So the file with this number is my
+                    <mark>users</mark>
+                    table. The data in this file is stored as a list of 8Kb long
+                    pages. If single database tuple(row) doesn't fit into 8Kb
+                    the
+                    technique called
+                    <mark>TOAST</mark>
+                    is used to split long column values into separate segments
+                    or use compression to decrease the size.I won't cover
+                    physical representation of tuples(There is a great
+                    presentation on this subject <a
+                        href="https://pgconf.ru/media/2016/05/13/tuple-internals.pdf">HERE</a>
+                    ) but one of the most important part of a tuple is a version
+                    number(Id of transaction that created this tuple). Postgres
+                    uses this id in order to provide tuple visibility for
+                    different transaction. Next part is about it
+                </p>
+                <h1>Multiversion concurrency control</h1>
+                <p>Now Let's talk about how different transactions read these
+                    <mark>pages</mark>
+                    and avoid uncommitted or aborted changes of other
+                    transactions
+                </p>
+            </article>
+        </div>
+    </div>
+</div>
+<footer class="site-footer">
+    <div class="centered">
+        © strogiyotec.github.io 2021
+        <span>Website last updated at: <span id="lastupdated"></span></span>
+    </div>
+    <script type="application/javascript" src="../../js/updated_at.js"></script>
+</footer>
+</body>
+</html>
