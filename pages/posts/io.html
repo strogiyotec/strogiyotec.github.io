@@ -107,7 +107,8 @@
             </header>
             <article class="post-content">
                 <p>In this post I will talk about kernel, io and all these stuff
-                    but let's start with a simple question. Nodejs is faster than
+                    but let's start with a simple question. Nodejs is faster
+                    than
                     Java? I've heard it a lot from my
                     friends and from forums on the Internet. Let's make it
                     clear,
@@ -126,14 +127,16 @@
                 <h1>Why is it slower?</h1>
                 <p>Let's understand why Java is slower than NodeJs. First of
                     all what do we mean by saying that one language is slower
-                    than another. Well language itself can't be fast, 
-					speed depends on the runtime.
-					In this blog I will talk about Hotspot and OpenJdk runtime which implies that 
-					Java's runtime includes interpeter and two 
-					JIT compilers. Usually people talk about how fast a language
+                    than another. Well language itself can't be fast,
+                    speed depends on the runtime.
+                    In this blog I will talk about Hotspot and OpenJdk runtime
+                    which implies that
+                    Java's runtime includes interpeter and two
+                    JIT compilers. Usually people talk about how fast a language
                     could perform a CPU intensive task. Something like matrix
                     multiplication or finding n-th number in Fibonacci
-                    sequence. In this case Java(Hotspot) beats Nodejs and even c++
+                    sequence. In this case Java(Hotspot) beats Nodejs and even
+                    c++
                     (sometimes).Why ? Because of JIT. Java is a compiled
                     language,
                     it is compiled into a specific language called bytecode. JVM
@@ -141,11 +144,14 @@
                     is of course slower than executing compiled machine code.
                     However, JVM has
                     two JIT compilers that periodically compile hot methods into
-                    machine specific code. 
-					For this to work , Hotspot stores statistics(in easiest case just counters) 
-					for each method,loop. Using these statistics, Compilers decide what to compile 
-					and how to optimize compiled code
-					(Remove unused memory allocations, unloop statements and so on).
+                    machine specific code.
+                    For this to work , Hotspot stores statistics(in easiest case
+                    just counters)
+                    for each method,loop. Using these statistics, Compilers
+                    decide what to compile
+                    and how to optimize compiled code
+                    (Remove unused memory allocations, unloop statements and so
+                    on).
                     I don't want to
                     go
                     deep in this topic because I am mainly focusing in non CPU
@@ -153,10 +159,11 @@
                     then you have to watch <a
                         href="https://www.youtube.com/watch?v=oH4_unx8eJQ&t=1147s">this</a>
                     excellent video by Douglas Hawkins.</p>
-                <p>Okay, now we know that Java beats Nodejs in terms of CPU
-                    intensive tasks, then why are there so many articles
+                <p>Okay, now we know that Java is great in terms of CPU
+                    intensive tasks
+                    then why there are so many articles
                     about big companies moving to Node? I am not the first one
-                    to tell you about it, but Nodejs is faster because it
+                    to tell you this, but Nodejs is faster because it
                     doesn't require a lot of user level threads(the ones that
                     you create by using <code>new Thread(runnable)</code>) in
                     order to provide a high performance backend server. You
@@ -189,14 +196,16 @@
                     task is heavy(takes a lot of time) then we assign it to some
                     sort of thread pool
                     and create a callback ,otherwise , the event loop will be
-                    blocked, and we won't be able to handle new connections. When
+                    blocked, and we won't be able to handle new connections.
+                    When
                     the task is finished , the thread pool
                     puts a result of this task back to the event loop , then the
                     event
-                    loop will eventually execute a callback on this result
-                    . If you need a further explanation then <a
+                    loop will eventually execute this callback and return the
+                    result to client
+                    . Please check out this wonderful talk by<a
                         href="https://www.youtube.com/watch?v=8aGhZQkoFbQ">Philip
-                        Roberts</a> will explain it much better than I can.</p>
+                        Roberts</a> .</p>
                 <p>Now the tricky question, Ok event loop, but can't we use it
                     in Java ? We can indeed ,moreover Servlet containers such as
                     Tomcat use Event Loop by default. What? Yes, the default
@@ -211,7 +220,8 @@
                     requests
                     (According to my experience, one thread will be enough).
                     After that, when connection with the client has been
-                    established, the event loop puts a task into a queue which is
+                    established, the event loop puts a task into a queue which
+                    is
                     monitored by a thread
                     pool of worker threads.Thread pool takes a task from the
                     queue and assigns a worker
@@ -230,7 +240,7 @@
                     tasks from the event loop. The only solution for Servlet
                     containers prior to Servlet 3.1 specification was to
                     increase amount of worker threads, but again , most of them
-                    won't do anything but block on IO (BTW I want
+                    won't do anything but wait for IO (BTW I want
                     to write another small blog about
                     Async servlets, because I have seen how developers ,
                     including me, blindly
@@ -264,64 +274,47 @@
                     program
                     that reads a file called input.txt.This file contains only
                     two words <code>Hello world</code></p>
-                <figure class="highlight">
-                        <pre><code class="language-java" data-lang="java">
-try (FileInputStream stream = new FileInputStream("input.txt")) {
-   int content;
-   while ((content = stream.read()) != -1) {
-        // just read file byte by byte
-      }
-   }
+                <pre>
+                            <code class="language-java" data-lang="java">
+  public class Main {
+    public static void main(String[] args){
+        Files.readAllBytes(Paths.get("input.txt"));
+     }
+}
                         </code>
                         </pre>
-                </figure>
-                <p>In order to see all system calls that program uses we can use
-                    a cli utility called <a
-                        href="https://github.com/strace/strace">strace</a>(most
-                    Linux distros include this utility by default so you don't
-                    have to install it). If I compile the program above into a
-                    native executable using graal and then run this command
-                    <code>strace ./main 2> my_log_file</code> I will see the
-                    following output in log file.
+                <p>In order to see system calls we can use cli program called
+                    <mark>strace</mark>
+                    . Here is an example(I use Java 11 so no need to compile
+                    java file)
+                    <code>strace java Main.java</code>. The output will be huge
+                    but we are interested in the last lines. One of them will
+                    look like this
                 </p>
-                <pre><code>
-openat(AT_FDCWD, "input.txt", O_RDONLY) = 3
-fstat(3, {st_mode=S_IFREG|0664, st_size=12, ...}) = 0
-read(3, "H", 1)                         = 1
-read(3, "e", 1)                         = 1
-read(3, "l", 1)                         = 1
-read(3, "l", 1)                         = 1
-read(3, "o", 1)                         = 1
-read(3, " ", 1)                         = 1
-read(3, "w", 1)                         = 1
-read(3, "o", 1)                         = 1
-read(3, "r", 1)                         = 1
-read(3, "l", 1)                         = 1
-read(3, "d", 1)                         = 1
-read(3, "\n", 1)                        = 1
-
+                <pre>
+                    <code>
+read(3, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0p>\0\0\0\0\0\0"..., 832) = 832
                 </code></pre>
-                <p>Now we know that Java calls a system method called
-                    read,however read takes a file descriptor(in my case it was
-                    number 3) created by <code>openat</code>
+                <p>Now we know that InputStream uses a system method called
+                    <mark>read</mark>
+                    ,however read takes a file descriptor(in my case it was
+                    number 3) created by
+                    <mark>openat</mark>
                     , let's check the
-                    manual for this system call <code>man openat</code>.
-                    You will notice that openat creates a blocking file
+                    manual for openat <code>man openat</code>. You will notice
+                    that openat creates a blocking file
                     descriptor by default.It means that user thread that uses
-                    file descriptor created by openat will have to wait for
-                    a response
-                    from the kernel, in other words, thread will be blocked. That's
-                    it. Here is the answer, all
-                    Java
-                    classes that inherit Input/Output streams
-                    use blocking system calls.
-                </p>
+                    file descriptor created by openat will have to wait for a
+                    response
+                    from the kernel, in other words, thread will be blocked.
+                    Every subclass of Java's InoutStream and OutputStream uses a
+                    blocking system calls like this one.
                 <h1>File Descriptors</h1>
                 <p>Remember when I told you about event loop handling incoming
                     requests ?
-                    What it really does is, event loop thread makes a system
-                    call in order to create a file descriptor for incoming
-                    socket connections. In Unix systems everything is file,
+                    What it really does is it creates a file descriptor for each
+                    socket connection
+                    . In Unix systems everything is a file,
                     including sockets.
                     OS creates a unique number called file descriptor and uses
                     it as a file identifier(system calls such as read and write
@@ -331,12 +324,14 @@ read(3, "\n", 1)                        = 1
                     descriptors in parallel , the only obstacle is RAM,
                     because each file descriptor is an internal structure that
                     occupies some memory (Now you can understand how
-                    nginx is able to handle 10K parallel requests, it uses a file
+                    nginx is able to handle 10K parallel requests, it uses
+                    file
                     descriptors).
                 </p>
                 <h1>Epoll</h1>
                 <p>The way Tomcat's Nio Connector works is approximately the
-                    same as how NodeJs works. Then why Node is faster.The tricky
+                    same as Event loop from Nodejs. Then why Node is faster.The
+                    tricky
                     part is , NodeJs doesn't use blocking calls. Of course, you
                     can do it , but it's considered as antipattern. Worker
                     threads of Nodejs don't have to wait for IO and therefore
@@ -347,13 +342,14 @@ read(3, "\n", 1)                        = 1
                     libuv, this library is a cross platform, but in Linux it
                     uses
                     a system call known as <code>epoll</code>.
-                    Again , you can check a manual page related to epoll but
+                    Again , you can check the manual page related to epoll but
                     here I will give you a brief explanation on how it works.
                     <br>
                     Epoll is a system call that allows us to monitor sockets
-                    for new data. When we use epoll, our program doesn't have to
+                    for a new data. When we use epoll, our program doesn't have
+                    to
                     wait until new data will appear.As soon as data from sockets
-                    is ready, Kernel will give as a list of file descriptors
+                    is ready, Kernel will return a list of file descriptors
                     associated with these sockets. Here is a
                     brief example on C
                 </p>
@@ -364,7 +360,8 @@ read(3, "\n", 1)                        = 1
   while(running)
   {
     printf("\nPolling for input...\n");
-    //ask kernel which file descriptors have a new data, this call is non blocking
+    //ask kernel which file descriptors have a new data
+    //The last argument is the amount of milliseconds to wait
     event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, 30000);
     printf("%d ready events\n", event_count);
     for(i = 0; i < event_count; i++)
@@ -374,9 +371,11 @@ read(3, "\n", 1)                        = 1
     }
   }
                 </code></pre>
-                <p> Our event loop asks
+                <p> Event loop asks
                     kernel if any sockets have a new data, if so then
-                    we can get these data using file descriptor , if no sockets have new data, then
+                    we can get these data using file descriptor number , if no
+                    sockets
+                    have new data, then
                     kernel returns 0 and
                     main thread doesn't have to wait
                     .Also we have a <code>for</code> loop that works with data,
@@ -389,7 +388,32 @@ read(3, "\n", 1)                        = 1
                     hood , all event loop
                     based servers use
                     these system calls in order to provide non blocking
-                    behavior.</p>
+                    behavior.
+                    Just for the comparison with Java's program that reads a
+                    file, let's write the same program using
+                    Node.js and execute it using strace
+                </p>
+                <pre>
+                     <code>
+fs = require('fs')
+fs.readFile('read.txt', 'utf8', function (err,data) {
+    console.log(data)
+});
+                     </code>
+                 </pre>
+                <p>Again the output from strace is huge but as in C code we are
+                    looking for the following system calls
+                </p>
+                <ul>
+                    <li>epoll_create that creates an unblocking file descriptor.
+                        In my case it looks like this <code>epoll_create1(EPOLL_CLOEXEC)
+                            = 13</code> as you can see File descriptor 13 was
+                        created
+                    </li>
+                    <li>epoll_wait to wait for events from kernel.<code>epoll_wait(13, [{EPOLLIN, {u32=16, u64=16}}], 1024, 8100) = 1
+                    </code>.The last argument is the time to wait for a response.
+                    </li>
+                </ul>
                 <h1>Java NIO and Netty</h1>
                 <p>Starting from Java 5, we have a new package named NIO. Java
                     Nio gives us an API to use non blocking system
@@ -409,7 +433,8 @@ read(3, "\n", 1)                        = 1
                     rewriting JDBC in order to use non blocking sockets.
                     The one that I contribute to and most interested in is
                     <a href="https://github.com/r2dbc/r2dbc-spi">r2dbc</a>. With
-                    this library we can send non blocking requests to Database and get a
+                    this library we can send non blocking requests to Database
+                    and get a
                     response in the form of Reactive interfaces(Mono or Flux).
                     <br>
                     However, I want to mention that Java ecosystem is huge , and
