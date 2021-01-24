@@ -6,16 +6,16 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta property="description" content="postgres">
     <meta property="og:title"
-          content="Postgres, The Bare minimum you should know"/>
+          content="Postgres, I think I got it"/>
     <meta property="og:description"
-          content="Postgres, The Bare minimum you should know"/>
+          content="Postgres, I think I got it"/>
     <meta property="og:type" content="article"/>
     <meta property="og:site_name" content="Almas Abdrazak"/>
     <meta property="og:image"
           content="https://strogiyotec.github.io/images/tom_mouse.jpg"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta property="author" content="Almas Abdrazak">
-    <title>Postgres, The Bare minimum you should know</title>
+    <title>Postgres, I think I got it</title>
     <link rel="stylesheet" href="../../css/font-awesome.min.css">
     <link rel="stylesheet" href="../../css/main.css">
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -102,8 +102,7 @@
     <div class="wrapper">
         <div class="post">
             <header class="post-content">
-                <h1 class="post-title">Postgres, The Bare minimum you should
-                    know</h1>
+                <h1 class="post-title">Postgres, I think I got it</h1>
                 <p class="post-meta">January 10, 2021</p>
             </header>
             <article class="post-content">
@@ -122,9 +121,8 @@
                     developer and everything I will describe here is based on
                     my understanding gained from Blog posts and
                     documentation. I can
-                    easily make mistakes so don't hesitate to tell me about it
-                    so
-                    I can fix them. Okay then , Let's start.
+                    easily make mistakes so don't hesitate to mention it
+                    so I can improve this post. Okay , Let's start.
                 </p>
                 <figure class="articleimg">
                     <img src="../../images/tom_mouse.jpg"
@@ -134,14 +132,20 @@
                     </figcaption>
                 </figure>
                 <h1>Where is my data Dude ?</h1>
-                <p>Let's start with data. Where Postgres stores databases and
-                    tables. If you didn't set an environmental variable
-                    <code>$PGDATA</code> then your Database(most probably ,I
-                    only
-                    tested it in Debian) is stored in
-                    <code>/var/lib/postgresql/12/main</code> directory. Now
-                    let's go inside <code>base</code> folder.
-                    It contains a bunch of number based subfolders . Those
+                <p>Let's start with data. Where does Postgres stores databases
+                    and
+                    tables? If you doesn't set an environmental variable
+                    <code>$PGDATA</code> then your Database Cluster is stored in
+                    <code>/var/lib/postgresql/12/main</code>. Cluster is a
+                    collection of databases managed by Postgres(cluster in the
+                    context if Postges is not a cluster of separate servers)
+                    . Single database is a collection of database
+                    objects(tables,indexes,views...). It's stored under the
+                    <mark>base</mark>
+                    directory
+                    If you go inside of the base directory you will see a list
+                    of
+                    numbered sub folders. Those
                     are database object ids(
                     <mark><a
                         href="https://www.postgresql.org/docs/12/datatype-oid.html">OIDS</a>
@@ -163,7 +167,9 @@
                     In my case this number was
                     <mark>16384</mark>
                     . Check if
-                    you have a folder with this number(in your case this number
+                    you have a folder with this number inside the
+                    <mark>base</mark>
+                    directory(in your case this number
                     will be different). Now let's
                     <mark>cd</mark>
                     into folder with this number and you will see a bunch of
@@ -190,19 +196,31 @@
                     . So the file with this number is my
                     <mark>users</mark>
                     table. The data in this file is stored as a list of 8Kb long
-                    pages. If single database tuple(row) doesn't fit into 8Kb
-                    the
-                    technique called
+                    pages. Every page contains 3 main parts
+                </p>
+                <ol>
+                    <li>List of tuples - actual data in table rows .</li>
+                    <li>Line pointers - each pointer contains a file offset to
+                        the start of the tuple.
+                    </li>
+                    <li>Headers - General information about the page to be used
+                        by WAL. Also it contains ID of transaction that created
+                        or deleted this tuple(it's used by MVCC)
+                    </li>
+                </ol>
+                <img src="https://www.interdb.jp/pg/img/fig-1-04.png"
+                     alt="Page physical representation">
+                <p>
+                    For me it was confusing, what if a table stores a huge BLOB
+                    of data in the row ,how would it fit into 8 Kb Page. The
+                    answer is
                     <mark>TOAST</mark>
-                    is used to split long column values into separate segments
-                    or use compression to decrease the size.I won't cover
-                    physical representation of tuples(There is a great
-                    presentation on this subject <a
-                        href="https://pgconf.ru/media/2016/05/13/tuple-internals.pdf">HERE</a>
-                    ) but one of the most important part of a tuple is a version
-                    number(Id of transaction that created this tuple). Postgres
-                    uses this id in order to provide tuple visibility for
-                    different transaction. Next part is about it
+                    . When value is big enough and data type has a variable
+                    length(such as a length of a string)
+                    then the actual column is stored out of the tuple, and tuple
+                    has a pointer to this value. I really recommend you to read
+                    this presentation about TOAST
+                    <a href="https://pgconf.ru/media/2016/05/13/tuple-internals.pdf">HERE</a>.
                 </p>
                 <h1>Multiversion concurrency control</h1>
                 <p>Now Let's talk about how different transactions read these
