@@ -368,6 +368,33 @@
                     be used in order to performer heavyweight analytical
                     queries.
                 </p>
+                <h1>Processes</h1>
+                <p>Now when we know a little bit about processes let's see how
+                    it looks in reality</p>
+                <img src="../../images/postgres_stats.png" alt="Stats">
+                <p>There are 6 processes that run along side from main Postgres
+                    process </p>
+                <ol>
+                    <li>checkpointer - periodically runs checkpoints to save
+                        changes from dirty pages to disk
+                    </li>
+                    <li>background writer - I didn't cover it because it works
+                        in the same way as checkpointer, flushes dirty pages to
+                        disk ,check documentations to understand why Postgres
+                        uses two processes to do it
+                    </li>
+                    <li>walwriter - writes data to append only log files</li>
+                    <li>autovacuum - periodically runs vacuum process</li>
+                    <li>statscollector - collect performance and usage
+                        statistics such as IO performance and usage of every
+                        table in database
+                    </li>
+                    <li>logical replication launcher - the process that pushes
+                        logical changes from master to listeners,I didn't cover
+                        it because replication topic is big enough for a
+                        separate blog
+                    </li>
+                </ol>
                 <h1>Conclusion</h1>
                 <p>Postgres is a wonderful database which has a huge variety of
                     use cases. It can be used as a NoSQL database with an
