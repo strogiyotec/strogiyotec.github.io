@@ -12,7 +12,7 @@
     <meta property="og:type" content="article"/>
     <meta property="og:site_name" content="Almas Abdrazak"/>
     <meta property="og:image"
-          content="https://strogiyotec.github.io/images/tom_mouse.jpg"/>
+          content="https://strogiyotec.github.io/images/elehpant.jpeg"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta property="author" content="Almas Abdrazak">
     <title>Postgres, I think I got it</title>
@@ -103,7 +103,7 @@
         <div class="post">
             <header class="post-content">
                 <h1 class="post-title">Postgres, I think I got it</h1>
-                <p class="post-meta">January 10, 2021</p>
+                <p class="post-meta">January 30, 2021</p>
             </header>
             <article class="post-content">
                 <p>My DBMS of choice is Postgres. I have been using it for the
@@ -138,7 +138,7 @@
                     <code>$PGDATA</code> then your Database Cluster is stored in
                     <code>/var/lib/postgresql/12/main</code>. Cluster is a
                     collection of databases managed by Postgres(cluster in the
-                    context if Postges is not a cluster of separate servers)
+                    context of Postges is not a cluster of separate servers)
                     . Single database is a collection of database
                     objects(tables,indexes,views...). It's stored under the
                     <mark>base</mark>
@@ -241,8 +241,8 @@
                     identifier which is just a 32 byte integer which is
                     incremented every time a new transaction is created.
                     <br>
-                    Secondly,every transaction has a state which such as
-                    committed,aborted,in progress. These states are stored in
+                    Secondly,every transaction has a state such as
+                    committed,aborted,or in progress. These states are stored in
                     <mark>PGDATA/pg_xact</mark>
                     file. Two bites are allocated for every transaction -
                     committed or aborted.
@@ -280,7 +280,12 @@
                     files with suffixes, the ones with _fsm suffix is Free Space
                     Map). When new tuple is gonna be inserted it will override
                     the
-                    physical space occupied by dead tuple using FSM. However ,
+                    physical space occupied by dead tuple using FSM(let's say
+                    you have dead tuples in the end of the table file, in this
+                    case these space will be cleaned and returned to Operating
+                    system check out this research to understand how it works<a
+                    href="https://postgreshelp.com/postgresql-vacuum-conflicts/">HERE</a>).
+                    However ,
                     scanning whole table is expensive that is why another data
                     structure is used to speed up this process called Visibility
                     Map or VM (remember files with _vm suffix). Visibility map
@@ -305,11 +310,13 @@
                     future. It will break visibility rules and in order to avoid
                     it Vacuum does a freezing. Vacuum finds pretty old tuples
                     which are visible to all transactions and mark them as
-                    frizzed which means it doesn't meter what xmax this row has
+                    frizzed which means it doesn't meter which xmax this row has
                     , it will be visible to all transactions. Freezing is the
                     main reason why long transactions is a bad idea. Before
-                    freezing old transaction Vacuum has to make sure there is no
-                    transaction that with this pages. If you open a transaction
+                    freezing old transactions Vacuum has to make sure there is
+                    no
+                    transaction that work with these pages. If you open a
+                    transaction
                     and forgot to finish it, Vacuum will wait forever so don't
                     forget to set up transaction max age time in your pg_conf
                     file(by default transactions don't have a time out limit)
@@ -327,7 +334,7 @@
                     .the log with these changes is maintained. When we update
                     the value in Buffer Cache we also insert a new record to
                     this log. This log is append only so it's much faster than
-                    Random write disk write. In case of failure , Postgres can
+                    Random disk write. In case of failure , Postgres can
                     replay WAL in order to store consistent data in the disk.
                     WAL is stored on disk as files in the $PGDATA/pg_wal
                     directory , each file is 16Mb and if it's full a new file
@@ -352,14 +359,14 @@
                     The WAL mechanism is really powerful and it's also used
                     during Postgres Replication. Let's say you have a long
                     analytical queries that take hours to complete. These
-                    transaction will reduce the speed of other small
+                    transactions will reduce the speed of other small
                     transactions. In order to avoid it , the easiest way is just
                     run small transactions against main Postgres
                     instance(master), and setup another postgres
-                    instance(slave), then just stream WAL changes from master to
-                    slave so slave will have an up tp date information and can
+                    instance(slave), then stream WAL changes from master to
+                    slave so slave will have an up to date information and can
                     be used in order to performer heavyweight analytical
-                    transactions
+                    queries.
                 </p>
                 <h1>Conclusion</h1>
                 <p>Postgres is a wonderful database which has a huge variety of
@@ -377,9 +384,10 @@
                     Isolation so I'm really grateful he spend time in order to
                     explain those concepts ). Also I highly recommend you to
                     take a look at this blog series about <a
-                        href="http://www.interdb.jp/pg/">POstgres Internal</a>
+                        href="http://www.interdb.jp/pg/">Postgres Internal</a>
                     by Hironobu SUZUKI that helped me a lot to understand
-                    internal data structures used be Postgres. Thanks for your
+                    internal data structures used be Postgres. <br>Thanks for
+                    your
                     time !
                 </p>
             </article>
