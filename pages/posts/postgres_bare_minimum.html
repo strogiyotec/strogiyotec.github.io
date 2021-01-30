@@ -225,9 +225,96 @@
                 <h1>Multiversion concurrency control</h1>
                 <p>Now Let's talk about how different transactions read these
                     <mark>pages</mark>
-                    and avoid uncommitted or aborted changes of other
-                    transactions
+                    concurrently.
+                    <br>Firstly , there are could be multiple versions
+                    of the same row at the same time. How could we distinguish
+                    these versions from each other ? Every row has two hidden
+                    fields which indicate a creation time(xmin) and deletion
+                    time(xmax). When row is created it's xmin is set to
+                    transaction id of the transaction that performed the INSERT,
+                    when row is deleted it's xmax is set to transaction ID that
+                    performed DELETE or UPDATE. Yes, technically when
+                    transaction performs UPDATE then row's xmax is set to
+                    transaction ID and new row is created whose xmin is set to
+                    transaction ID. Transaction ID? Every database transaction
+                    has a unique
+                    identifier which is just a 32 byte integer which is
+                    incremented every time a new transaction is created.
+                    <br>
+                    Secondly,every transaction has a state which such as
+                    committed,aborted,in progress. These states are stored in
+                    <mark>PGDATA/pg_xact</mark>
+                    file. Two bites are allocated for every transaction -
+                    committed or aborted.
+                    <br>
+                    Finally let's talk about visibility. When transaction tries
+                    to read a row it has to check the following conditions.
                 </p>
+                <ol>
+                    <li>Read xmin of the row and check from pg_xact file if this
+                        transaction was completed
+                    </li>
+                    <li>If transaction was completed was it committed if yes
+                        then this row is visible(technically it also depends on
+                        isolation level ,as an example repeatable read won't see
+                        a row with committed xmin if xmin is bigger than current
+                        transaction's ID,while read committed will )
+                    </li>
+                    <li>If transaction with row's xmin is aborted then this row
+                        is not visible
+                    </li>
+                </ol>
+                <p>So we have multiple versions of the same row and at some
+                    point of time some of those versions won't be valid, however
+                    they still allocate a physical space . In oder to clean up
+                    this space, the process called
+                    <mark>VACUUM</mark>
+                    is used.
+                </p>
+                <h1>VACUUM</h1>
+                <p>
+                    So what Vacuum does? It vacuums away dead tuples and
+                    references from indexes to these tuples. Vacuum doesn't
+                    clean up the physical space. Instead , it stores dead tuple
+                    locations in Free Space Map or FSM(remember I told you about
+                    files with suffixes, the ones with _fsm suffix is Free Space
+                    Map). When new tuple is gonna be inserted it will override
+                    the
+                    physical space occupied by dead tuple using FSM. However ,
+                    scanning whole table is expensive that is why another data
+                    structure is used to speed up this process called Visibility
+                    Map or VM (remember files with _vm suffix). Visibility map
+                    works at the same way as pg_xact.
+                    It stores boolean bite for every page in the table. This
+                    bite indicate if this page has dead tuples. If it doesn't
+                    then Vacuum skips this page. Also Vacuum cleans references
+                    to dead tuples from indexes. However, and this is important,
+                    it doesn't clean up index space. So if you have a table with
+                    a lot of deletes. It's better to recreate indexes cause
+                    index still occupies physical space with a reference to dead
+                    tuple even though they won't be used during the index scan.
+                    Lastly , Vacuum does one really important thing called
+                    freezing. In order to understand what it means we have to
+                    return to transaction ID.
+                    As I said transaction ID is 32 byte number, what's gonna
+                    happen when there is now available number in this range for
+                    new transaction(2^32 is reached) ? In this case transaction
+                    wrap around will happen and ID counter will start from zero
+                    again. It's a little bit confusing because new transaction
+                    with ID 1 will think that transaction with id 2^32 is in the
+                    future. It will break visibility rules and in order to avoid
+                    it Vacuum does a freezing. Vacuum finds pretty old tuples
+                    which are visible to all transactions and mark them as
+                    frizzed which means it doesn't meter what xmax this row has
+                    , it will be visible to all transactions. Freezing is the
+                    main reason why long transactions is a bad idea. Before
+                    freezing old transaction Vacuum has to make sure there is no
+                    transaction that with this pages. If you open a transaction
+                    and forgot to finish it, Vacuum will wait forever so don't
+                    forget to set up transaction max age time in your pg_conf
+                    file(by default transactions don't have a time out limit)
+                </p>
+                <h1>WAL or Durability</h1>
             </article>
         </div>
     </div>
