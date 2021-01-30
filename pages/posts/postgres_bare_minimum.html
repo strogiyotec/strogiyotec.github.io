@@ -125,8 +125,8 @@
                     so I can improve this post. Okay , Let's start.
                 </p>
                 <figure class="articleimg">
-                    <img src="../../images/tom_mouse.jpg"
-                         alt="Small Tom">
+                    <img src="../../images/elephant.jpeg"
+                         alt="Elephant">
                     <figcaption>
                         Tom &amp; Jerry by William Hanna and Joseph Barbera
                     </figcaption>
@@ -315,6 +315,73 @@
                     file(by default transactions don't have a time out limit)
                 </p>
                 <h1>WAL or Durability</h1>
+                <p>And the last thing I want to mention is WAL or Write Ahead
+                    Log. First of all working with disk directly is really
+                    expensive it terms of time. RAM and CPU caches are much
+                    faster , that is why , When you execute queries the values
+                    are read or written to data structure called Buffers which
+                    are stored in RAM. Every insert is firstly stored in this
+                    buffers and following updated will change Buffer's value.
+                    However in order to survive crashes , Postgres can't blindly
+                    store everything in RAM. Therefore, along with data changes
+                    .the log with these changes is maintained. When we update
+                    the value in Buffer Cache we also insert a new record to
+                    this log. This log is append only so it's much faster than
+                    Random write disk write. In case of failure , Postgres can
+                    replay WAL in order to store consistent data in the disk.
+                    WAL is stored on disk as files in the $PGDATA/pg_wal
+                    directory , each file is 16Mb and if it's full a new file
+                    will be created.
+                    Don't worry , commits are also WAL logged so aborted
+                    transaction won't be replayed.
+                    <br>
+                </p>
+                <h3>Recovery</h3>
+                <p>During recovery , the process called postmaster will read all
+                    rows from WAL files and execute them one by one . However ,
+                    let's say we have 10 WAL files each 16 Mb long, the
+                    recovering process will be really long so we need a way to
+                    speed up recovery and this way is called CHECKPOINTS
+                    <br>
+                    During Checkpoints, Postgres should flush the data from
+                    buffers to disk . When all dirty buffers(dirty means buffers
+                    that store inserts and updates) are flushed to disk the
+                    checkpoint is considered to be completed. In this case when
+                    postmaster does a recovery , it skips all WAL rows
+                    created prior to Checkpoint.
+                    The WAL mechanism is really powerful and it's also used
+                    during Postgres Replication. Let's say you have a long
+                    analytical queries that take hours to complete. These
+                    transaction will reduce the speed of other small
+                    transactions. In order to avoid it , the easiest way is just
+                    run small transactions against main Postgres
+                    instance(master), and setup another postgres
+                    instance(slave), then just stream WAL changes from master to
+                    slave so slave will have an up tp date information and can
+                    be used in order to performer heavyweight analytical
+                    transactions
+                </p>
+                <h1>Conclusion</h1>
+                <p>Postgres is a wonderful database which has a huge variety of
+                    use cases. It can be used as a NoSQL database with an
+                    excellent jsonb support. Also you can use it as a
+                    TimeSeries(checkout <a href="https://www.timescale.com/">TimeScaleDb</a>)
+                    database. Spend some time and checkout Postgres
+                    Documentation because it's a great example how documentation
+                    should be written, I have never seen such a great
+                    explanation of complex internals as in Postgres
+                    Documentation. I wanna thank <a
+                        href="https://habr.com/en/users/erogov/">Egor Rogov</a>
+                    with his excellent blog series about Postgres in Habr(also
+                    he answered some of my questions related to Transaction
+                    Isolation so I'm really grateful he spend time in order to
+                    explain those concepts ). Also I highly recommend you to
+                    take a look at this blog series about <a
+                        href="http://www.interdb.jp/pg/">POstgres Internal</a>
+                    by Hironobu SUZUKI that helped me a lot to understand
+                    internal data structures used be Postgres. Thanks for your
+                    time !
+                </p>
             </article>
         </div>
     </div>
