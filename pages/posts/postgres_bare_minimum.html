@@ -108,7 +108,9 @@
             <article class="post-content">
                 <p>My DBMS of choice is Postgres. I have been using it for the
                     last three years and every time I discover some internal
-                    parts which are quite amazing and unique for Postgres.
+                    parts which are quite amazing and unique foe Postgres(jsonb
+                    index support,materialized views,prepared transactions you
+                    name it ).
                     This blog post is some sort of a cheetsheet on How Postgres
                     works internally
                     Without going too deep into implementation details. If you
@@ -132,7 +134,7 @@
                     </figcaption>
                 </figure>
                 <h1>Where is my data Dude ?</h1>
-                <p>Let's start with data. Where does Postgres stores databases
+                <p>Let's start with data. Where Postgres stores databases
                     and
                     tables? If you doesn't set an environmental variable
                     <code>$PGDATA</code> then your Database Cluster is stored in
@@ -201,7 +203,7 @@
                 <ol>
                     <li>List of tuples - actual data in table rows .</li>
                     <li>Line pointers - each pointer contains a file offset to
-                        the start of the tuple.
+                        the start of the tuples.
                     </li>
                     <li>Headers - General information about the page to be used
                         by WAL. Also it contains ID of transaction that created
@@ -227,7 +229,8 @@
                     <mark>pages</mark>
                     concurrently.
                     <br>Firstly , there are could be multiple versions
-                    of the same row at the same time. How could we distinguish
+                    of the same row at the same point of time. How could we
+                    distinguish
                     these versions from each other ? Every row has two hidden
                     fields which indicate a creation time(xmin) and deletion
                     time(xmax). When row is created it's xmin is set to
@@ -251,8 +254,8 @@
                     to read a row it has to check the following conditions.
                 </p>
                 <ol>
-                    <li>Read xmin of the row and check from pg_xact file if this
-                        transaction was completed
+                    <li>Read xmin of the row and check from pg_xact file if
+                        transaction with this xmin id was completed
                     </li>
                     <li>If transaction was completed was it committed if yes
                         then this row is visible(technically it also depends on
@@ -283,21 +286,23 @@
                     physical space occupied by dead tuple using FSM(let's say
                     you have dead tuples in the end of the table file, in this
                     case these space will be cleaned and returned to Operating
-                    system check out this research to understand how it works<a
+                    system check out this research to understand how it works <a
                     href="https://postgreshelp.com/postgresql-vacuum-conflicts/">HERE</a>).
                     However ,
                     scanning whole table is expensive that is why another data
                     structure is used to speed up this process called Visibility
                     Map or VM (remember files with _vm suffix). Visibility map
-                    works at the same way as pg_xact.
+                    works in the same way as pg_xact.
                     It stores boolean bite for every page in the table. This
                     bite indicate if this page has dead tuples. If it doesn't
                     then Vacuum skips this page. Also Vacuum cleans references
                     to dead tuples from indexes. However, and this is important,
                     it doesn't clean up index space. So if you have a table with
-                    a lot of deletes. It's better to recreate indexes cause
-                    index still occupies physical space with a reference to dead
-                    tuple even though they won't be used during the index scan.
+                    a lot of deletes or updates, it's better to recreate indexes
+                    cause
+                    index still occupies physical space with a references to
+                    dead
+                    tuples even though they won't be used during the index scan.
                     Lastly , Vacuum does one really important thing called
                     freezing. In order to understand what it means we have to
                     return to transaction ID.
@@ -329,9 +334,10 @@
                     are read or written to data structure called Buffers which
                     are stored in RAM. Every insert is firstly stored in this
                     buffers and following updated will change Buffer's value.
-                    However in order to survive crashes , Postgres can't blindly
+                    However in order to survive server crashes , Postgres can't
+                    blindly
                     store everything in RAM. Therefore, along with data changes
-                    .the log with these changes is maintained. When we update
+                    ,the log with these changes is maintained. When we update
                     the value in Buffer Cache we also insert a new record to
                     this log. This log is append only so it's much faster than
                     Random disk write. In case of failure , Postgres can
@@ -372,7 +378,7 @@
                 <p>Now when we know a little bit about processes let's see how
                     it looks in reality</p>
                 <img src="../../images/postgres_stats.png" alt="Stats">
-                <p>There are 6 processes that run along side from main Postgres
+                <p>There are 6 processes that run along with main Postgres
                     process </p>
                 <ol>
                     <li>checkpointer - periodically runs checkpoints to save
