@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Keep SOLID in mind working with Hibernate</title>
+    <meta charset="UTF-8">
+    <meta property="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta property="description" content="postgres,PITR,backups">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="og:title"
+          content="Keep SOLID in mind working with Hibernate"/>
+    <meta property="og:url"
+          content="https://strogiyotec.github.io/pages/posts/hibernate.html"/>
+    <meta property="og:description"
+          content="Keep SOLID in mind working with Hibernate"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:site_name" content="Almas Abdrazak"/>
+    <meta property="og:image"
+          content="https://raw.githubusercontent.com/strogiyotec/strogiyotec.github.io/master/images/freeze_tom.jpg"/>
+    <meta property="author" content="Almas Abdrazak">
+    <title>Keep SOLID in mind working with Hibernate</title>
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async
+            src="https://www.googletagmanager.com/gtag/js?id=UA-163711919-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'UA-163711919-1');
+    </script>
+</head>
+<body>
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="../../images/author.png" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github"
+                       href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line"
+                       href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Schedule a meeting with me "
+                       href="https://calendly.com/aalmas">
+                        <i class="fa fa-calendar fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Check my stack-overflow account"
+                       href="https://stackoverflow.com/users/8019439/almas-abdrazak">
+                        <i class="fa fa-stack-overflow fa-lg"
+                           aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="Follow me on medium"
+                       href="https://medium.com/@almas337519">
+                        <i class="fa fa-medium fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="My LinkedIn account"
+                       href="https://www.linkedin.com/in/almas-abdrazak-01882515b/">
+                        <i class="fa fa-linkedin fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <nav class="site-nav">
+            <a href="#" class="menu-icon">
+                <svg viewBox="0 0 18 15">
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                </svg>
+            </a>
+            <div class="trigger">
+                <a class="page-link" href="../../index.html">About</a>
+                <a class="page-link" href="../blogs.html">Blog</a>
+                <a class="page-link" href="../../pages/resume.html">Resume</a>
+            </div>
+        </nav>
+    </div>
+</header>
+<div class="page-content">
+    <div class="wrapper">
+        <div class="post">
+            <header class="post-content">
+                <h1 class="post-title">Keep SOLID in mind working with
+                    Hibernate</h1>
+                <p class="post-meta">Sept 05 , 2021</p>
+            </header>
+            <article class="post-content">
+                <p>
+                    Whether you like it or not, but Hibernate is the most popular
+                    ORM solution for JVM based languages.
+                    I have used it in all companies I worked for(starting from
+                    big
+                    E-commerce sites and ending with small startups).
+                    Honestly I don't like having Hibernate or any JPA
+                    implementations
+                    in projects I am working on
+                    because in my humble opinion it brings a huge
+                    layer of complexity(read on to know a reason). There are
+                    some alternatives such as <a
+                    href="https://www.jooq.org/">JOOQ</a> and <a
+                    href="https://mybatis.org/mybatis-3/">MyBatis</a>(personally
+                    my favorite one). Also I heard about <a
+                    href="https://spring.io/projects/spring-data-jdbc">Spring
+                    Data JDBC</a> but
+                    didn't have a chance to use it. So why do I think that
+                    Hibernate is a bad thing, well , one part of a reason is a
+                    documentation
+                    but the biggest problem is developers
+                </p>
+                <figure class="articleimg">
+                    <img src="../../images/freeze_tom.jpg"
+                         alt="Tom Reads book">
+                    <figcaption>
+                        Tom &amp; Jerry by William Hanna and Joseph Barbera
+                    </figcaption>
+                </figure>
+                <h1 id="documentation">Documentation</h1>
+                <p>The documentation of Hibernate is really obscure. It doesn't
+                    cover a great variety of cases and the only way to find out
+                    why you have an unexpected behaviour is to refer to <a
+                        href="https://vladmihalcea.com/blog/">Vlad Mihalcea blog
+                        posts</a>(or StackOverFlow).</p>
+                <p>
+                    As an example, in one of the companies I worked for we had a
+                    problem
+                    when EntityGraph didn't work for nested collections.
+                    There is no documentation that covers a reason and searching
+                    through the github issues gave us a ticket
+                    with exactly the same problem that has been solved in a
+                    newest
+                    Hibernate release, because project was using Spring Boot, we
+                    had to wait
+                    for Spring Boot team to release a new major version that
+                    bumps
+                    Hibernate version in a parent bom. <br>
+                    But these kind of problems are somewhat resolvable, you
+                    google ,
+                    debug Hibernate's source code(trust me, not a pleasant
+                    experience) or see release notes to see if your problem has
+                    been solved, so documentation is not a biggest pitfall.
+                </p>
+                <h1>Developers</h1>
+                <p>One thing I noticed everytime I start working on a new
+                    project. Java developers don't know how to organize an
+                    entity layer. As an example, let's say we are building an
+                    e-commerce website, of course we have a
+                    user,orders,items,comment tables.
+                    Order has a foreign key to user and item , and so does a
+                    comment table.
+                    We can go to Hibernate's quick start page and see how to map
+                    these relationships
+                    to Entity class.</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">@Entity("user)</span>
+<span class="o">class UserEntity{    </span>
+<span class="o">    @OneToMany(init=LAZY)</span>
+<span class="o">    private List&lt;Orders&gt; orders</span>
+<span class="o">    @OneToMany(init=LAZY)</span>
+<span class="o">    private List&lt;Comments&gt; comments</span>
+<span class="o">    //credentials</span>
+<span class="o">    private String username</span>
+<span class="o">    private String password</span>
+<span class="o">    private Role role</span>
+</code></pre>
+                </figure>
+                <p>Straight forward right? Yes it is , but the problem here is
+                    what are responsibilities of this class<br> (<span>I</span>
+                    in SOLID).To put it another way, in which case Am I allowed
+                    to change this
+                    class ?</p>
+                <h2 id="problem1">Problem 1 - Smart Entities</h2>
+                <p>Let's say we are using Spring Security to add a security
+                    layer for http based endpoints.Spring requires you to
+                    provide an implementation of <a
+                        href="https://docs.spring.io/spring-security/site/docs/5.2.9.RELEASE/api/org/springframework/security/core/userdetails/UserDetails.html">UserDetails
+                    </a>
+                    interface that has methods to get user's name,password and
+                    roles. A User Entity class already has these parameters
+                    right? So why not just use it ?<code>class UserEntity
+                        implements
+                        UserDetails</code>. If you do so then the whole
+                    security layer will be mixed up with business logic. You
+                    will be able to access user's orders right from
+                    ServletListener.Whenever
+                    you change User Entity apart from checking a business logic
+                    you will have to check that it won't break a security layer
+                    too . Does it follow a single responsibility
+                    principle ? I doubt it does. So what is a solution ?</p>
+                <p>Hibernate doesn't mention it explicitly but you don't have to
+                    have a single Entity that represents a database table. What
+                    if we keep a User Entity above and introduce a new one </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">@Entity("user)//same user table</span>
+<span class="o">class UserCredentialsEntity implements UserDetails{    </span>
+<span class="o">    //credentials</span>
+<span class="o">    private String username</span>
+<span class="o">    private String password</span>
+<span class="o">    private Role role</span>
+</code></pre>
+                </figure>
+                <p>So now whenever Hibernate fires a select query it won't touch
+                    any dependencies apart from the fields listed in
+                    UserCredentials class </p>
+                <h2 id="problem2">Problem 2 - DTO layer</h2>
+                <p>I think everybody knows what the fetch modes in Hibernate are.
+                    In essence it's a way to let Hibernate know when you need to
+                    use joins to fetch class dependencies or just fetch
+                    attributes of a single table. I bet you saw <code>LazyInitException</code>
+                    before which happens
+                    when you try to access a nested object or collection out of
+                    a transaction which
+                    was loaded lazily. Let's have another
+                    use case with the same User Entity.
+                    Imagine when users open their profiles, they only see their
+                    names and some meta information such as birth , city and so on. Spring
+                    has a pattern called DTO which implies that you can't expose
+                    an Entity layer into a controller layer or put it another way,
+                    the controller has to return a DTO, not a business Entity.
+                    Imagine you have a layer that transforms an entity into a
+                    dto(if you don't want to write this layer manually then
+                    check out a <a href="https://mapstruct.org/">MapStruct</a>
+                    project that does it for you)
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">@Service</span>
+<span class="o">class EntityToDto {    </span>
+<span class="o">    public UserDto userToDTO(UserEntity user){</span>
+<span class="o">       ...</span>
+</code></pre>
+                </figure>
+                <p>And here is the UserDTO</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">class UserDTO</span>
+<span class="o">    private String name</span>
+<span class="o">    private String birthday</span>
+<span class="o">    private List&lt;CommentsDto&gt; comments</span>
+<span class="o">    private List&lt;OrdersDto&gt; orders</span>
+</code></pre>
+                </figure>
+                <p>So how <code>EntityToDto</code> is supposed to know whether
+                    <code>UserEntity</code> was loaded with or without
+                    corresponding orders? One solution I see often is to inject
+                    an <code>EntityManager</code> right
+                    into<code>EntityToDto</code> and check every single
+                    dependency
+                    (If you don't care about exposing a JPA implementation , you
+                    can use static method from Hibernate
+                    <code>Hibernate.isInitialized(entity);</code> but new
+                    problem arises, it's hard to test a class that uses static
+                    methods).</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">@Service</span>
+<span class="o">class EntityToDto</span>
+<span class="o">    @Autowired EntityManager entityManager</span>
+<span class="o">    public UserDto userToDto(UserEntity user){</span>
+<span class="o">        if(entityManager.getEntityManagerFactory().getPersistenceUnitUtil().isLoaded(user.getOrders())){</span>
+<span
+    class="o">           userDto.setOrders(this.ordersToDto(user.getOrders));</span>
+</code></pre>
+                </figure>
+                <p>It's just horrible, now Dto layer has an EntityManager, a
+                    manager that can easily fire sql queries right from
+                    DtoLayer.
+                    What is more , Dto layer is becoming too smart, it can work
+                    with a case when the user has or doesn't have loaded
+                    orders(Interface segregation principle).
+                    What is a solution? The one I came up with is to introduce a
+                    third UserEntity class that doesn't have a dependency on
+                    orders and credentials.
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">@Entity("user)//same user table</span>
+<span class="o">class UserProfileEntity {    </span>
+<span class="o">    private String name</span>
+<span class="o">    private String birthday</span>
+</code></pre>
+                </figure>
+                <p>It doesn't have any information about credentials because
+                    they are only known by the security layer and it doesn't have
+                    orders. So now UserProfileEntity is only responsible for
+                    a user page and we can remove entity manager from Dto
+                    .Moreover, now we can modify
+                    <code>UserEntity</code> class by declaring all dependencies
+                    as eager.We know for sure that users of this class will work
+                    with orders, so there is no need to declare orders as lazy.
+                </p>
+                <blockquote>I see your point, but we would end up having too
+                    many classes, is it any better than having a single class
+                    per table?
+                </blockquote>
+                <p>Ok, let me convince you with one more example, the problem is
+                    not only
+                    in DtoLayer but in the repository layer too. Repository layer <a
+                        href="https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design">encapsulates
+                        the logic required to access data sources</a>. Having
+                    single user entity means we need multiple methods to fetch
+                    the same user with/without orders
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">interface UserRepo extends CrudRepositoryI</span>
+<span class="o">    @EntityGraph(attributePaths = {"orders"})</span>
+<span
+    class="o">    List&lt;UserEntity&gt; getUserWithOrders(String userId);    </span>
+<span class="o"></span>
+<span class="o">    List&lt;UserEntity&gt; getUser(String userId);    </span>
+</code></pre>
+                </figure>
+                <p>In the example above we are using Spring Data to generate two
+                    methods, using EntityGraph we are telling Hibernate when to
+                    load a lazy collection. I think the repository layer shouldn't
+                    be mixed up with this logic, it should only be
+                    responsible for fetching data without knowing how to do
+                    it. Introducing a new entity class that doesn't contain
+                    any refereces to other tables precisely solves this problem. </p>
+                <h2 id="problem3">Problem 3 - Spring Data is bloated</h2>
+                <p>I assume nowadays most people are working with Hibernate
+                    through Spring Data abstraction, it's great and allows you
+                    to get rid of a boilerplate, however, I advise you not to
+                    leak
+                    Spring Data Repositories into a Service layer.</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">interface UserRepository extends CrudRepository&lt;UserEntity,Long&gt;{</span>
+<span class="o">        UserEntity getOneById(Long id);</span>
+</code></pre>
+                </figure>
+                <p>Here is one example of Spring Repository,
+                    implementation will be created in runtime by spring and
+                    using specific naming convention it understands what kind of
+                    query you are expecting(in example above it's a select of a
+                    single user by id). But because you extend <code>CrudRepository</code>
+                    your interface gets additional methods such as fetching and
+                    deleting
+                    all users. According to Martin Fowler
+                    ,Service layer defines <a
+                        href="https://martinfowler.com/eaaCatalog/serviceLayer.html">a
+                        set of available operations and
+                        coordinates the application's response in each
+                        operation</a>. Having the repository above in <code>UserService</code>
+                    we imply that deleting all users from the database is a part
+                    of
+                    a service operation but it's not. There is a great
+                    <a href="https://www.vzurauskas.com/2019/04/07/two-layer-repositories-in-spring">article</a>
+                    that proposes an idea of having Spring layers encapsulated
+                    by Domain Objects . But this approach is hard to implement
+                    in
+                    existing applications. What I propose is something similar,
+                    create a sub package where you store Spring data
+                    repositories(ideally make it package friendly so only
+                    classes from the same package can have an access ) and then
+                    introduce
+                    a new repository package that contains your domain specific
+                    datasource interaction.
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">class UserRepository{</span>
+<span class="o">        @Autowired UserSpringDataRepository repo;</span>
+<span class="o">        UserEntity getOneById(Long id){</span>
+<span class="o">            return this.repo.getOneById(id);</span>
+<span class="o">        }</span>
+</code></pre>
+                </figure>
+                <p>In the example above we have a repository class which only has 1
+                    method, then instead of injecting Spring Data Repo ,the service
+                    layer will use this Repository. Cons ? A new
+                    repository clearly defines a datasource operation that can
+                    be used by the service layer.</p>
+                <h2 id="problem4">Problem 4 - Transaction management is
+                    tricky</h2>
+                <p>I noticed that many people don't really understand how
+                    transaction management works.Having
+                    <code>@Transactional</code> on top of your method will make
+                    a deal right? Let's make a small test, do you see a problem
+                    in the code below ? We are trying to update a user with data
+                    from html form.
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">class UserService{</span>
+<span class="o">        @Autowired UserRepo repo;</span>
+<span class="o">        @Transactional </span>
+<span class="o">        void updateUser(Long userId, UserProfile page) {</span>
+<span class="o">            var entity =  this.repo.getOneById(id);</span>
+<span class="o">            entity.setName(page.getName);</span>
+<span class="o">            if(page.birthday.isValid(){</span>
+<span class="o">                    entity.setBirthday(page.birthday);</span>
+<span class="o">            }else {</span>
+<span class="o">                log.error("Invalid birthday");</span>
+<span class="o">                return;</span>
+<span class="o">             }</span>
+<span class="o">            repo.save(entity);</span>
+<span class="o">        }</span>
+</code></pre>
+                </figure>
+                <p>If you don't then read on. All entities managed by Hibernate
+                    have a state, if your entity is inside of a database
+                    transaction it has a managed state, as soon as transactional
+                    method is about to exit, hibernate checks if any fields were
+                    modified , if they were, then Hibernate fires an update
+                    query , put it another way , you don't have to call <code>save</code>
+                    , calling a setter is enough.That is why, even though
+                    birthday was invalid and method save wasn't called, the
+                    user's name
+                    will be updated anyway, if it's a part of a business
+                    requirements then that's totally fine, otherwise good luck
+                    debugging the cause .Some other things to
+                    consider, If you have a transactional method ,same as above,
+                    how to reuse it using a different propagation level(let's
+                    say execute a method in a new transaction even though
+                    method was called from another transactional). I know some
+                    workarounds but don't want to describe them , cause it's
+                    not the best choice. Let me know if you are familiar with a
+                    stable solution</p>
+                <h2 id="problem5">Problem 5 - How Delete Works</h2>
+                <p>Let's take a look at UserEntity for the last time.What if we
+                    want to delete a user by id who has a list of orders, let's
+                    say 5 orders. How many sql queries will be executed ? The
+                    answer is 6, 5 to delete every individual order , and then
+                    one to
+                    delete a user. Couldn't Hibernate just run 2 queries instead
+                    ?
+                    <code>DELETE order where user_id=?; DELETE user where
+                        id=?; </code>. Unfortunately it can't because one of the
+                    orders can be a part of a different transaction and as a
+                    result stored in Hibernate context. If deleting users isn't
+                    a common operation then leaving it as it is would be the
+                    best choice. However, if it's a critical part of an
+                    application then we have to rewrite it. One solution is to
+                    introduce a native query in the Repository layer.</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">interface UserRepository{</span>
+<span class="o">    @Modifying</span>
+<span class="o">    @Query(nativeQuery = true,value = "DELETE from order where user_id = :userId")</span>
+<span
+    class="o">        void deleteOrdersByUser(@Param("userId") Long uidpk);</span>
+</code></pre>
+                </figure>
+                <p>The problem here is that native queries are not tracked by
+                    Hibernate listeners(<code>@EntityListener</code>) which
+                    means if you have some hooks that
+                    have to be executed right after you delete an order(let's
+                    say
+                    save some statistics and then send an email to
+                    managers) then they won't work.One solution I come up with
+                    is to use Spring's integrated event bus library </p>
+
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k">@Component</span>
+<span class="o">class EntityListener</span>
+<span class="o">   @Transactional(propagation = Propagation.REQUIRES_NEW)</span>
+<span class="o">   @PreRemove</span>
+<span class="o">      public void preRemove(final Order order) {...</span>
+<span class="o">}</span>
+<span class="o"></span>
+<span class="o">@Component</span>
+<span class="o">public class ApplicationDeleteListener implements ApplicationListener&lt;OrderDeleteEvent&gt; {</span>
+<span class="o">   @Autowired EntityListener listener</span>
+<span class="o">   public void onApplicationEvent(final OrderDeleteEvent entityDeleteEvent) {</span>
+<span
+    class="o">       this.listener.preRemove(entityDeleteEvent.getOrder());</span>
+<span class="o">    }</span>
+</code></pre>
+                </figure>
+                <p>In this case when order was deleted by Hibernate, the
+                    @EntityListener will be called automatically, otherwise you
+                    have to publish an event into the EventBus which will
+                    delegate a hook logic to EntityListener.</p>
+                <h1>Conclusion</h1>
+                <p>There is no way JVM based backends(most of them) will get rid
+                    of the Hibernate in the near future,so the only thing we can
+                    do as developers is to
+                    introduce a good level of of abstraction and don't forget
+                    that SOLID principles could be applied to entity layer
+                    too.</p>
+            </article>
+        </div>
+    </div>
+</div>
+<footer class="site-footer">
+    <div class="centered">
+        © strogiyotec.github.io 2021
+        <span>Website last updated at: <span id="lastupdated"></span></span>
+    </div>
+    <script type="application/javascript" src="../../js/updated_at.js"></script>
+</footer>
+</body>
+</html>
