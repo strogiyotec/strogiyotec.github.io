@@ -7,17 +7,18 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta property="description" content="postgres,PITR,backups">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta property="og:title"
-          content="Keep SOLID in mind working with Hibernate"/>
-    <meta property="og:url"
-          content="https://strogiyotec.github.io/pages/posts/hibernate.html"/>
-    <meta property="og:description"
-          content="Keep SOLID in mind working with Hibernate"/>
-    <meta property="og:type" content="article"/>
-    <meta property="og:site_name" content="Almas Abdrazak"/>
-    <meta property="og:image"
-          content="https://raw.githubusercontent.com/strogiyotec/strogiyotec.github.io/master/images/freeze_tom.jpg"/>
-    <meta property="author" content="Almas Abdrazak">
+    <meta content="Keep SOLID in mind working with Hibernate"
+          property="og:title"/>
+    <meta content="https://strogiyotec.github.io/pages/posts/hibernate.html"
+          property="og:url"/>
+    <meta content="Keep SOLID in mind working with Hibernate"
+          property="og:description"/>
+    <meta content="article" property="og:type"/>
+    <meta content="Almas Abdrazak" property="og:site_name"/>
+    <meta
+        content="https://raw.githubusercontent.com/strogiyotec/strogiyotec.github.io/master/images/freeze_tom.jpg"
+        property="og:image"/>
+    <meta content="Almas Abdrazak" property="author">
     <title>Keep SOLID in mind working with Hibernate</title>
     <link rel="stylesheet" href="../../css/font-awesome.min.css">
     <link rel="stylesheet" href="../../css/main.css">
@@ -110,7 +111,8 @@
             </header>
             <article class="post-content">
                 <p>
-                    Whether you like it or not, but Hibernate is the most popular
+                    Whether you like it or not, but Hibernate is the most
+                    popular
                     ORM solution for JVM based languages.
                     I have used it in all companies I worked for(starting from
                     big
@@ -228,7 +230,8 @@
                     any dependencies apart from the fields listed in
                     UserCredentials class </p>
                 <h2 id="problem2">Problem 2 - DTO layer</h2>
-                <p>I think everybody knows what the fetch modes in Hibernate are.
+                <p>I think everybody knows what the fetch modes in Hibernate
+                    are.
                     In essence it's a way to let Hibernate know when you need to
                     use joins to fetch class dependencies or just fetch
                     attributes of a single table. I bet you saw <code>LazyInitException</code>
@@ -238,9 +241,11 @@
                     was loaded lazily. Let's have another
                     use case with the same User Entity.
                     Imagine when users open their profiles, they only see their
-                    names and some meta information such as birth , city and so on. Spring
+                    names and some meta information such as birth , city and so
+                    on. Spring
                     has a pattern called DTO which implies that you can't expose
-                    an Entity layer into a controller layer or put it another way,
+                    an Entity layer into a controller layer or put it another
+                    way,
                     the controller has to return a DTO, not a business Entity.
                     Imagine you have a layer that transforms an entity into a
                     dto(if you don't want to write this layer manually then
@@ -306,7 +311,8 @@
 </code></pre>
                 </figure>
                 <p>It doesn't have any information about credentials because
-                    they are only known by the security layer and it doesn't have
+                    they are only known by the security layer and it doesn't
+                    have
                     orders. So now UserProfileEntity is only responsible for
                     a user page and we can remove entity manager from Dto
                     .Moreover, now we can modify
@@ -320,7 +326,8 @@
                 </blockquote>
                 <p>Ok, let me convince you with one more example, the problem is
                     not only
-                    in DtoLayer but in the repository layer too. Repository layer <a
+                    in DtoLayer but in the repository layer too. Repository
+                    layer <a
                         href="https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design">encapsulates
                         the logic required to access data sources</a>. Having
                     single user entity means we need multiple methods to fetch
@@ -338,11 +345,13 @@
                 </figure>
                 <p>In the example above we are using Spring Data to generate two
                     methods, using EntityGraph we are telling Hibernate when to
-                    load a lazy collection. I think the repository layer shouldn't
+                    load a lazy collection. I think the repository layer
+                    shouldn't
                     be mixed up with this logic, it should only be
                     responsible for fetching data without knowing how to do
                     it. Introducing a new entity class that doesn't contain
-                    any refereces to other tables precisely solves this problem. </p>
+                    any refereces to other tables precisely solves this
+                    problem. </p>
                 <h2 id="problem3">Problem 3 - Spring Data is bloated</h2>
                 <p>I assume nowadays most people are working with Hibernate
                     through Spring Data abstraction, it's great and allows you
@@ -392,8 +401,10 @@
 <span class="o">        }</span>
 </code></pre>
                 </figure>
-                <p>In the example above we have a repository class which only has 1
-                    method, then instead of injecting Spring Data Repo ,the service
+                <p>In the example above we have a repository class which only
+                    has 1
+                    method, then instead of injecting Spring Data Repo ,the
+                    service
                     layer will use this Repository. Cons ? A new
                     repository clearly defines a datasource operation that can
                     be used by the service layer.</p>
