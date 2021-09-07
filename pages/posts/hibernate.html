@@ -335,7 +335,7 @@
                 </p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
-                            class="k">interface UserRepo extends CrudRepositoryI</span>
+                            class="k">interface UserRepo extends CrudRepository</span>
 <span class="o">    @EntityGraph(attributePaths = {"orders"})</span>
 <span
     class="o">    List&lt;UserEntity&gt; getUserWithOrders(String userId);    </span>
