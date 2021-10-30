@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>So why do we need a volatile keyword ? </title>
+    <meta charset="UTF-8">
+    <meta property="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta property="description" content="postgres,PITR,backups">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta content="So why do we need a volatile keyword"
+          property="og:title"/>
+    <meta content="https://strogiyotec.github.io/pages/posts/volatile.html"
+          property="og:url"/>
+    <meta content="So why do we need a volatile keyword"
+          property="og:description"/>
+    <meta content="article" property="og:type"/>
+    <meta content="Almas Abdrazak" property="og:site_name"/>
+    <meta
+        content="https://raw.githubusercontent.com/strogiyotec/strogiyotec.github.io/master/images/volatile.jpg"
+        property="og:image"/>
+    <meta content="Almas Abdrazak" property="author">
+    <title>So why do we need a volatile keyword</title>
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async
+            src="https://www.googletagmanager.com/gtag/js?id=UA-163711919-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'UA-163711919-1');
+    </script>
+</head>
+<body>
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="../../images/author.png" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github"
+                       href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line"
+                       href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Schedule a meeting with me "
+                       href="https://calendly.com/aalmas">
+                        <i class="fa fa-calendar fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Check my stack-overflow account"
+                       href="https://stackoverflow.com/users/8019439/almas-abdrazak">
+                        <i class="fa fa-stack-overflow fa-lg"
+                           aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="Follow me on medium"
+                       href="https://medium.com/@almas337519">
+                        <i class="fa fa-medium fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="My LinkedIn account"
+                       href="https://www.linkedin.com/in/almas-abdrazak-01882515b/">
+                        <i class="fa fa-linkedin fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <nav class="site-nav">
+            <a href="#" class="menu-icon">
+                <svg viewBox="0 0 18 15">
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                </svg>
+            </a>
+            <div class="trigger">
+                <a class="page-link" href="../../index.html">About</a>
+                <a class="page-link" href="../blogs.html">Blog</a>
+                <a class="page-link" href="../../pages/resume.html">Resume</a>
+                <a class="page-link" href="../../pages/talks.html">Talks</a>
+            </div>
+        </nav>
+    </div>
+</header>
+<div class="page-content">
+    <div class="wrapper">
+        <div class="post">
+            <header class="post-content">
+                <h1 class="post-title">So why do we need a volatile keyword</h1>
+                <p class="post-meta">October 30 , 2021</p>
+            </header>
+            <article class="post-content">
+                <p>
+                    Most of the time I am working on a highload JVM based
+                    backends and for sure I know the keyword
+                    <code>volatile</code>. If you google the meaning
+                    , then probably you would find something related to
+                    caching. I did too, and it didn't satisfy my
+                    curiosity ,so I had to go deeper, way deeper. So why not
+                    share my findings
+                    here so curious readers can get a better view on the
+                    concurrent
+                    nature of Java.
+                </p>
+                <figure class="articleimg">
+                    <img src="../../images/volatile.jpg"
+                         alt="Tom Reads book">
+                    <figcaption>
+                        Tom &amp; Jerry by William Hanna and Joseph Barbera
+                    </figcaption>
+                </figure>
+                <h1 id="documentation">It starts with caches</h1>
+                <p>Before explaining what volatile does it would be better to
+                    understand what problem it solves in the first place.
+                    Let's start with a small code sample
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">class Counter{    </span>
+<span class="o">     private int cnt</span>
+<span class="o">     public void increment(){ </span>
+<span class="o">         this.cnt++</span>
+<span class="o">     }</span>
+<span class="o">     public int get(){</span>
+<span class="o">          return this.cnt</span>
+<span class="o">     }</span>
+</code></pre>
+                </figure>
+                <p>Straight forward counter that allows you to get and increment
+                    the number. But what's going on in terms of CPU ? The
+                    silicon mafia
+                    ships around 4 CPU cache levels between CPU and RAM.
+                    First level is located as close to the CPU as possible and
+                    usually has the smallest size(around 16 kilobytes).
+                    The most frequently used variables are stored there.
+                    Each next level has a bigger size but has a higher access
+                    time than each previous level.
+                    Moreover, nowadays most hardware is shipped with multiple
+                    CPU Cores.
+                    CPU cores which may or may not share the same CPU caches.
+                    Now
+                    let's return to the example above that performs a simple
+                    increment <code>this.cnt++</code>. To read a single
+                    variable means to check if it's present in CPU
+                    level 1 cache, most probably it isn't there if we just
+                    started
+                    the program. Next, the second level cache has to be checked
+                    and
+                    so
+                    on. In a Single Core environment the process would end here
+                    and
+                    Cpu will have to load the variable from RAM. Just for you to
+                    understand the latency it takes for CPU to check each
+                    individual
+                    cache
+                    and RAM here is the nice diagram.</p>
+                <figure class="articleimg">
+                    <img src="../../images/latency.png"
+                         alt="Tom Reads book">
+                    <figcaption>
+                        Latency diagram taken from <a
+                        href="https://gist.github.com/hellerbarde/2843375">Github</a>
+                    </figcaption>
+                </figure>
+                <p>1 ns for level 1 Cache read versus 100 ns for RAM read, looks
+                    impressive, isn't it ? . However, for Multi-CPU systems
+                    things become more complicated. Before incrementing the
+                    counter,
+                    CPU has to ask other cores using system bus whether they
+                    have a modified version of this counter in their own caches.
+                    If
+                    some CPU come back and says , yes I do, then it has to flush
+                    this variable back to Main Memory(RAM) then original CPU
+                    would read this variable from RAM again before modifying
+                    it(some hardware producers actually make it possible to read
+                    this value directly from system bus which eliminate the path
+                    through main memory). Now CPU can increment the counter and
+                    write it back to main memory, but most probably we will need
+                    it again soon ,so the OS can decide to keep it in CPU cache
+                    for a while. There is a thing called <strong><a
+                        href="https://en.wikipedia.org/wiki/MESI_protocol">MESI</a></strong>(I
+                    know what you think, but it's another Mesi). It's a cache
+                    coherence protocol that basically represent states that a
+                    cached variable can have </p>
+                <ul>
+                    <li>Modified - M. The cache line present only in the current
+                        cache, and it was modified
+                    </li>
+                    <li>Exclusive - E. The cache line present only in the
+                        current cache, and it wasn't modified
+                    </li>
+                    <li>Shared - S. The cache line may be stored in other Core's
+                        caches. But all of them matches the value from Main
+                        memory
+                    </li>
+                    <li>Invalid - I. When Cache line was marked as Modified(M)
+                        or Exclusive(E), the copies of this variable in other
+                        caches will be marked as invalid
+                    </li>
+                </ul>
+                <p>Starting to get the idea ? </p>
+                <h1>It sounds slow</h1>
+                <p>As you probably guessed, the thing that keeps variables in
+                    different caches to be synchronized with each other makes
+                    program execution really
+                    slow. So now let's google a volatile keyword in Java and the
+                    first example you will encounter will cover volatile boolean
+                    variable</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="o">
+public class StoppableTask extends Thread {
+  private boolean pleaseStop;
+
+  public void run() {
+    while (!pleaseStop) {
+      // do some stuff...
+    }
+  }
+
+  public void tellMeToStop() {
+    pleaseStop = true;
+  }
+}
+</span>
+</code></pre>
+                </figure>
+                <p>We have a Thread(first) that does some job in an infinite
+                    loop,
+                    and
+                    then let's assume that another Thread from completely
+                    different Core calls <code>tellMeStop</code> that will
+                    change
+                    the value of boolean variable which will stop the infinite
+                    loop the first thread is running
+                    . If you don't declare this variable as volatile ,then the
+                    first
+                    Thread can cache this boolean variable in CPU cache and
+                    reread it from there, the thing that another thread changes
+                    the variable won't affect the first thread because the
+                    variable
+                    will still be read from local cache. That's how most
+                    articles explain the <code>volatile</code> keyword, use it
+                    otherwise Thread will cache the variable.
+                    But wait, didn't I just told you about this
+                    <strong>MESI</strong> thing and that CPU can't modify
+                    variable unless all other copies are synchronized ?
+                    How is it even possible that Thread can cache a value with
+                    cache coherence ? That's why I was confused, and it took me
+                    a
+                    while to get an answer so here it is. The thing is , when
+                    you compile and run your Java application , javac and then
+                    JIT makes a completely valid assumption that your program
+                    will be executed in a single Threaded environment. As a
+                    result, the compiler can make a really great optimization.
+                    Let's
+                    take a look at class above after compilation
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="o">
+public class StoppableTask extends Thread {
+  private boolean pleaseStop;
+
+  public void run() {
+    final boolean onStackVariable = this.pleaseStop;
+    while (onStackVariable) {
+      // do some stuff...
+    }
+  }
+
+  public void tellMeToStop() {
+    pleaseStop = true;
+  }
+}
+</span>
+</code></pre>
+                </figure>
+                <p>So,before running the loop, compiler creates a local variable
+                    <code>onStackVariable</code> and uses it as a
+                    condition to exit the loop. Compiler is smart enough to see
+                    that your thread doesn't call <code>tellMeStop</code> which
+                    means there is no way a boolean variable can be updated.
+                    According to Java Language
+                    Specification, all stack variables are unique per
+                    Thread, so they don't have to be synchronized with each
+                    other
+                    which means you eliminate MESI protocol.
+                    This optimization makes your single Threaded programs run
+                    really fast because all variables Thread uses can be cached
+                    in the Stack and CPU doesn't have to perform cache coherence
+                    cycle after every read/write(remember ,reading from CPU 1
+                    Level cache is only 1 ns).
+                </p>
+                <p>But what if we are in a multithreading environment? Still,
+                    even if an application uses multiple threads, compiler is
+                    allowed to make an assumption that those threads won't
+                    communicate with each other using Object variables so each
+                    Thread is allowed to create a local copy of every
+                    Object/primitive they are working with.
+                    Is there a way to prevent the compiler from making this
+                    optimization ? Yes , and it's <code>volatile</code>
+                </p>
+                <h1>Volatile</h1>
+                <p>
+                    So now when you know what MESI is and how the program works
+                    with
+                    multiple Cores , let's talk about volatile.
+                    The <code>volatile</code> keyword is nothing more than
+                    telling compiler that local variable optimization is
+                    prohibited.
+                    So now every time
+                    Thread interacts with variables, it has to ask all Core
+                    caches
+                    whether they have a modified version. It basically kills the
+                    performance but makes your program valid. Keep in mind, you
+                    can
+                    annotate all variables as volatile even in a single threaded
+                    environment, but now you probably understand the
+                    consequences,
+                    it
+                    will make a single threaded program a way slower.
+                </p>
+                <h1>Happens Before</h1>
+                <p>Apart from volatile there are other ways to tell compiler to
+                    flush all writes back to main memory. All these ways are
+                    combined into a single rule called Happens-Before
+                    guarantee. Let's take a look at some of them</p>
+                <ul>
+                    <li>Synchronized block/method - All writes inside of a
+                        synchronized method/block will be visible to another
+                        Thread that
+                        starts executing this block/method
+                        <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="o">
+public class SyncBlock  {
+  private int first;
+  private int second;
+  public void synchronized doSmth() {
+       this.first++;
+       this.second++;
+
+  }//after exiting, both variables will be visible to all threads that will run enter this block
+}
+</span>
+</code></pre>
+                        </figure>
+                    </li>
+                    <li>All write to volatile variables happens before read from
+                        this volatile variable. And this one is handy because it
+                        also works for all nonvolatile writes that happened
+                        before write to a single volatile variable
+                        <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="o">
+public class VolatileWrite  {
+  private volatile int first;
+  private int second;
+  public void doSmth() {
+       this.first++;
+       this.second++;
+       // second thread will see updated version of both variables because incrementing
+      // first counter happened right before an increment of volatile varaible
+  }
+}
+</span>
+</code></pre>
+                        </figure>
+                    </li>
+                    <li>
+                        All writes happened before <code>Thread.start()</code>
+                        will be visible to just started Thread
+                        <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="o">
+public class ThreadVisibility  {
+    private static int counter= 0;
+    public static void main(String[] args) throws Exception {
+        counter++;
+        new Thread(()->{
+            System.out.println(counter);
+           //Thread will see a modified counter even
+          //if Second thread will be executed on a different Core
+        }, "Second Thread");
+    }
+}
+</span>
+</code></pre>
+                        </figure>
+                    </li>
+                </ul>
+                <p>Just to make it clear, your writes are not flushed to Main
+                    Memory right away, it just forces your cores to use MESY
+                    when one thread tries to reach the variable modified by
+                    different thread In which case the former thread will
+                    flush the latest result into Ram </p>
+                <h1>False Sharing</h1>
+                <p>When I described a MESY protocol, I was talking about this
+                    thing called a cache line. The thing is , CPU doesn't load
+                    data from RAM in terms of bytes, it loads data in terms of
+                    cache lines. Each cache line represents a contiguous list of
+                    memory with predefined size(for example on Intel
+                    architecture the cache line is 64 bytes). False sharing is
+                    when memory cells are different ,but they lie on the same
+                    cache line. The False Sharing is a source of performance
+                    degradation. So what does it look like ? </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="o">
+public class FalseSharing  {
+    private volatile long firstCnt = 0;
+    private volatile long secondCnt = 0;
+
+    public void methodThatRunOnSecondThread(){
+       this.secondCnt++;
+    }
+
+    public void methodThatRunOnFirstThread(){
+       this.firstCnt++;
+    }
+}
+</span>
+</code></pre>
+                </figure>
+                <p>Let's take a look at the code snipped above. We have a class
+                    with two long variables, both of them are volatile. The
+                    instance of this class will take up to 32 bytes(8*2=16 bytes
+                    for two long variables, plus 12 bytes for object
+                    metadata). Now we have two Threads running on different
+                    cores each calling a method that increments a single
+                    counter. Remember, CPU doesn't have to flush variables to
+                    main memory right away , it will wait until another thread
+                    will try to access it. So without cache lines it will work
+                    the following way: </p>
+                <ul>
+                    <li>First thread cached <code>firstCnt</code> in Level 1
+                        cache and started incrementing it
+                    </li>
+                    <li>Second thread cached <code>secondCnt</code> in Level 1
+                        cache and started incrementing it
+                    </li>
+                </ul>
+                <p>However, CPU works in terms of cache lines and because the
+                    instance of a class takes only 32 bytes, it will fit into a
+                    single cache line(which is 64 bytes). So now let's see how
+                    both Threads will work with same cache line.
+                    First Thread wants to increment first counter, but
+                    because the first counter lies on the same cache line as
+                    second one, First Thread has to update the whole cache line
+                    to
+                    have an up-to-date value of both counters even though the
+                    Thread
+                    doesn't use the second counter. It's a big problem which
+                    literally kills the performance. How do we deal with it ?
+                    Of course using annotations
+                </p>
+                <figure class="articleimg">
+                    <img src="../../images/cahce_line.png"
+                         alt="False sharing">
+                    <figcaption>
+                        System bus reads cache line from RAM into L1 cache
+                    </figcaption>
+                </figure>
+                <h2>Meet @Contended</h2>
+                <p>In order to solve the problem above we can put one counter
+                    into a separate cache line, but counter is a long, and it
+                    only takes 8 bytes. To deal with it, we can annotate an
+                    instance of class as <code>@Contended</code> so the single
+                    variable will occupy the whole cache line</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="o">
+public class FalseSharing  {
+
+    @Contented private volatile long firstCnt = 0;
+    private volatile long secondCnt = 0;
+
+    public void methodThatRunOnSecondThread(){
+       this.secondCnt++;
+    }
+
+    public void methodThatRunOnFirstThread(){
+       this.firstCnt++;
+    }
+}
+</span>
+</code></pre>
+                </figure>
+                <p>In this case , <code>firstCnt</code> will lie in a separate
+                    cache line from a <code>secondCnt</code> and so each Thread
+                    can work on it's counter without having to synchronize with
+                    each other </p>
+                <figure class="articleimg">
+                    <img src="../../images/contended.png"
+                         alt="Contended">
+                    <figcaption>
+                        Each counter lies on a different cache line.
+                    </figcaption>
+                </figure>
+                <h1>Finale</h1>
+                <p>I hope that now readers can understand what's going on at a
+                    hardware level and how some compiler optimization can ruin
+                    the correctness of program execution. JVM is a great
+                    platform that encapsulates all kind of complicated things
+                    related to hardware, however, in order to understand
+                    performance degradation of your app it's obligatory to
+                    understand how these things work on bare metal. CPU caches
+                    solve the gap between the fast CPU and slow main memory ,
+                    and data structures which are nicely aligned in cache lines
+                    will always benefit from caching . Or as was said by Scott
+                    Meyers "Show me your fancy data structure, and I promise ,
+                    simple array will be faster".There are
+                    some resources I found useful related to CPU cache in terms
+                    of Hardware and how JVM works with them. check them out
+                </p>
+                <ul>
+                    <li><a
+                        href="https://www.youtube.com/watch?v=WDIkqP4JbkE&t=3134s">The
+                        talk about CPU caches by Scott Meyers given in code dive
+                        conference</a></li>
+                    <li><a
+                        href="https://www.youtube.com/watch?v=EAUlxpdj3fY&t=1136s">A
+                        Talk from Oracle youtube channel related to Code caches
+                        and how JVM works with them</a></li>
+                    <li><a
+                        href="https://dzone.com/articles/what-false-sharing-is-and-how-jvm-prevents-it">A
+                        blog post on how @Contended is used in JDK internal
+                        classes</a></li>
+                </ul>
+            </article>
+        </div>
+    </div>
+</div>
+<footer class="site-footer">
+    <div class="centered">
+        © strogiyotec.github.io 2021
+        <span>Website last updated at: <span id="lastupdated"></span></span>
+    </div>
+    <script type="application/javascript" src="../../js/updated_at.js"></script>
+</footer>
+</body>
+</html>
