@@ -334,14 +334,98 @@ public class StoppableTask extends Thread {
                     Thread interacts with variables, it has to ask all Core
                     caches
                     whether they have a modified version. It basically kills the
-                    performance but makes your program valid. Keep in mind, you
-                    can
-                    annotate all variables as volatile even in a single threaded
-                    environment, but now you probably understand the
-                    consequences,
-                    it
-                    will make a single threaded program a way slower.
+                    performance but makes your program valid. Ok, but what If
+                    you annotate all variables as volatile in a single threaded
+                    program ?
+                    Technically these variables will be cached in Level 1, and
+                    only be flushed when another thread will try to access them,
+                    we don't have another thread, so it's up to OS to flush
+                    volatiles. Does it mean that volatile variable in a single
+                    threaded environment is the same as non-volatile one ? The
+                    answer is no. Volatile in Java has another property which
+                    prevents instruction reordering.
                 </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="o">
+public class Reordering  {
+  private int foo;
+  private int bar;
+
+  public void run() {
+        this.foo+=1;
+        this.bar+=2;
+        this.foo+=2;
+  }
+}
+</span>
+</code></pre>
+                </figure>
+                <p>Let's look at the code above. Two variables are incremented
+                    sequentially, in terms of a processor, <code>foo</code> will
+                    be loaded into
+                    the cache and incremented by one, but let's say the cache is
+                    full now(which is not , remember level 1 cache is 16 kb and
+                    there are different cache levels, but let's pretend we can
+                    only save one int in the cache) and CPU can't load
+                    <code>bar</code> into the cache
+                    so OS decided to flush <code>foo</code> back to main memory.
+                    Then <code>bar</code> was incremented by two and again, we
+                    can't load <code>foo</code> into cache to increment it by
+                    two
+                    because <code>bar</code> occupied entire cache size. It
+                    involves a lot of rounds between RAM and CPU caches.
+                    Can we make it better ? Of course , compiler will
+                    reorder your instructions to make it faster.
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="o">
+public class Reordering  {
+  private int foo;
+  private int bar;
+
+  public void run() {
+        this.foo+=3;
+        this.bar+=2;
+  }
+}
+</span>
+</code></pre>
+                </figure>
+                <p>So <code>foo</code> will loaded only once and increment by 3
+                    in one shot.Because for single threaded program it doesn't
+                    matter whether
+                    you increment <code>foo</code> by 3 in one instruction or
+                    with two
+                    separate ones, the end result is the same. However,
+                    for multithreading programs it's not the case. If compiler
+                    reorder instructions the second thread can see the
+                    following state entering the method <code>{foo = 3, bar =
+                        0}</code> which doesn't make any sense if you look at
+                    the source code. So the second property of
+                    <code>volatile</code> apart from visibility is preventing
+                    instruction reordering</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="o">
+public class Reordering  {
+  private volatile int foo;
+  private int bar;
+
+  public void run() {
+        this.foo+=1;
+        this.bar+=2;
+        this.foo+=2;
+  }
+}
+</span>
+</code></pre>
+                </figure>
+                <p>So to answer the previous question, volatile in single
+                    threaded environment will prevent reordering which will make
+                    your program slower, so my advice is , do not use it as long
+                    as you know that you don't need multithreading</p>
                 <h1>Happens Before</h1>
                 <p>Apart from volatile there are other ways to tell compiler to
                     flush all writes back to main memory. All these ways are
