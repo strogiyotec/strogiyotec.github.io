@@ -370,10 +370,10 @@ public class Reordering  {
                     only save one int in the cache) and CPU can't load
                     <code>bar</code> into the cache
                     so OS decided to flush <code>foo</code> back to main memory.
-                    Then <code>bar</code> was incremented by two and again, we
-                    can't load <code>foo</code> into cache to increment it by
+                    Then <code>bar</code> was loaded and incremented by two and again, we
+                    can't load <code>foo</code> into the cache to increment it by
                     two
-                    because <code>bar</code> occupied entire cache size. It
+                    because <code>bar</code> occupied entire cache size so it has to be flushed. It
                     involves a lot of rounds between RAM and CPU caches.
                     Can we make it better ? Of course , compiler will
                     reorder your instructions to make it faster.
@@ -393,8 +393,8 @@ public class Reordering  {
 </span>
 </code></pre>
                 </figure>
-                <p>So <code>foo</code> will loaded only once and increment by 3
-                    in one shot.Because for single threaded program it doesn't
+                <p>So <code>foo</code> will be loaded only once and be incremented by 3
+                    in one instruction.Because for single threaded program it doesn't
                     matter whether
                     you increment <code>foo</code> by 3 in one instruction or
                     with two
@@ -414,7 +414,7 @@ public class Reordering  {
   private int bar;
 
   public void run() {
-        this.foo+=1;
+        this.foo+=1;//can't be reordered
         this.bar+=2;
         this.foo+=2;
   }
