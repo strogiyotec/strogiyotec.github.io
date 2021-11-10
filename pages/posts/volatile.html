@@ -570,8 +570,8 @@ public class FalseSharing  {
                 <h2>Meet @Contended</h2>
                 <p>In order to solve the problem above we can put one counter
                     into a separate cache line, but counter is a long, and it
-                    only takes 8 bytes. To deal with it, we can annotate an
-                    instance of class as <code>@Contended</code> so the single
+                    only takes 8 bytes. To deal with it, we can annotate the
+                    property of class as <code>@Contended</code> so the single
                     variable will occupy the whole cache line</p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
