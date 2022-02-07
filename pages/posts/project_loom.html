@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Project Loom. How virtual threads are different.</title>
+    <meta charset="UTF-8">
+    <meta property="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta property="description" content="loom,java,coroutines">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta content="Project Loom"
+          property="og:title"/>
+    <meta content="https://strogiyotec.github.io/pages/posts/project_loom.html"
+          property="og:url"/>
+    <meta content="Project Loom"
+          property="og:description"/>
+    <meta content="article" property="og:type"/>
+    <meta content="Almas Abdrazak" property="og:site_name"/>
+    <meta
+        content="https://raw.githubusercontent.com/strogiyotec/strogiyotec.github.io/master/images/loom.jpg"
+        property="og:image"/>
+    <meta content="Almas Abdrazak" property="author">
+    <title>Project Loom. How virtual threads are different</title>
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async
+            src="https://www.googletagmanager.com/gtag/js?id=UA-163711919-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'UA-163711919-1');
+    </script>
+</head>
+<body>
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="../../images/author.png" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github"
+                       href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line"
+                       href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Schedule a meeting with me "
+                       href="https://calendly.com/aalmas">
+                        <i class="fa fa-calendar fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Check my stack-overflow account"
+                       href="https://stackoverflow.com/users/8019439/almas-abdrazak">
+                        <i class="fa fa-stack-overflow fa-lg"
+                           aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="Follow me on medium"
+                       href="https://medium.com/@almas337519">
+                        <i class="fa fa-medium fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="My LinkedIn account"
+                       href="https://www.linkedin.com/in/almas-abdrazak-01882515b/">
+                        <i class="fa fa-linkedin fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <nav class="site-nav">
+            <a href="#" class="menu-icon">
+                <svg viewBox="0 0 18 15">
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                </svg>
+            </a>
+            <div class="trigger">
+                <a class="page-link" href="../../index.html">About</a>
+                <a class="page-link" href="../blogs.html">Blog</a>
+                <a class="page-link" href="../../pages/resume.html">Resume</a>
+                <a class="page-link" href="../../pages/talks.html">Talks</a>
+            </div>
+        </nav>
+    </div>
+</header>
+<div class="page-content">
+    <div class="wrapper">
+        <div class="post">
+            <header class="post-content">
+                <h1 class="post-title">Project Loom. How virtual threads are
+                    different ? </h1>
+                <p class="post-meta">January 30 , 2022</p>
+            </header>
+            <article class="post-content">
+                <p>
+                    I want to start this year with a blog post about <a
+                    href="https://openjdk.java.net/jeps/8277131">Project
+                    Loom</a> , a new JEP from Oracle that will bring virtual
+                    threads(or coroutines) to the JVM. That's huge and people
+                    have been waiting for it for ages. Right now, Java ecosystem
+                    provides few frameworks to work with sockets in non-blocking
+                    way such as <a href="https://projectreactor.io/">Project
+                    Reactor</a>. I have nothing against of Reactor project,
+                    Confluence made a good developer experience for regular devs
+                    to use non-blocking API, there is however a big drawback in
+                    Reactor that I see. Once you start writing a backend in a
+                    reactive style, you can't stop. All blocking calls have to
+                    be rewritten using non-blocking API which is a completely
+                    new coding style with its own hidden surprises. Of course,
+                    all blocking calls can be delegated to dedicated Thread Poll
+                    but in this case we are going back to standard thread per
+                    request model . But
+                    this blog post is not about Reactor, it's about Loom. I
+                    spend quite a lot of time trying to understand what Oracle
+                    means by saying "Virtual Threads" and how it can solve the
+                    problems
+                    we face using Servlet API(Spring MVC). And after endless
+                    time of
+                    reading mailing lists and trying Loom in my local machine I
+                    think I finally got it. Before I start, all opinions here
+                    are my own and can(probably are) be wrong, always double
+                    check by your own and if you see any mistakes please let me
+                    know so this blog can become better. And so
+                    Let's start
+                </p>
+                <figure class="articleimg">
+                    <img src="../../images/loom.jpg"
+                         alt="Loom">
+                    <figcaption>
+                        Tom &amp; Jerry by William Hanna and Joseph Barbera
+                    </figcaption>
+                </figure>
+                <h1 id="problem">The current state of blocking IO</h1>
+                <p>Let's talk about a regular Java backend. You want to write
+                    some service that solves a particular business problem. You
+                    generate a new Spring boot project that uses Tomcat under
+                    the hood, then you create a database schema and use
+                    Hibernate as an ORM solution but instead of working with
+                    EntityManager directly you delegate the heavy work to Spring
+                    Data, and lastly there are probably some other networking
+                    services involved so your backend is making http requests
+                    to generate email, make a payment and so on. That's a
+                    typical Java based backend, and
+                    we
+                    all are familiar with how it works. </p>
+                <p>
+                    Under the hood Tomcat uses non-blocking event loop based
+                    thread that accepts new connections from users, then it
+                    delegates them into a fixed size thread poll that executes a
+                    business logic. Business logic almost always contains an IO
+                    interaction with remote services such as
+                    cache(Redis,Memcached),database(Postgres),
+                    third party services(Stripe). Most of the time ,the
+                    networking communication
+                    logic is written in the blocking way whether it's <code>RestTemplate</code>
+                    to send an http request to the service
+                    or <code>JdbcTemplate</code> to fetch some data from
+                    database. Blocking calls will block a
+                    thread from Tomcat's thread poll and the only way to
+                    increase the throughput of the backend is to increase the
+                    amount of threads in the poll.
+                    Increasing amount of threads means more context
+                    switching(which is actually fast enough in latests Linux
+                    kernels which use
+                    a fair scheduler) and more memory used because each
+                    thread needs a memory for a stacktrace(this value varies but
+                    for my Ubuntu 20.04 it's 8Mb per thread you can check stack
+                    trace size by running <code>ulimit -s</code> in your shell).
+                    As you can see,
+                    increasing amount of threads isn't scalable, so to solve a
+                    throughput problem we can use asynchronous style to work
+                    with sockets.
+                </p>
+                <p>
+                    The blocking IO in java is represented by two main classes
+                    namely <code>InputStream</code> and
+                    <code>OutputStream</code> and their subclasses. Let's say we
+                    want to read some data from database using Jdbc, the
+                    stacktrace of the program will end up by calling
+                    <code>read</code> method of <code>InputStream</code>, here
+                    is the interface for this method.
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">abstract class InputStream implements Closeable { </span>
+<span class="o">     //Reads the next byte of data from the input stream</span>
+<span class="o">     public abstract int read() throws IOException;</span>
+<span class="o">}</span>
+</code></pre>
+                </figure>
+                <p>Remember, <code>read</code> doesn't specify how it should be
+                    implemented , it just tells you that it will return data
+                    from the stream. It didn't satisfy my curiosity so I used
+                    <code>strace</code>(cli application that keeps track of the
+                    system calls your program is making) to see what my Linux
+                    machine is actually
+                    doing when <code>read</code> is called. So let's say we have
+                    a simple program that reads file's content </p>
+
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">public class TestInputStream{</span>
+<span class="o">    public static void main(final String[] args) {</span>
+<span
+    class="o">        var body = Files.readAllBytes(Path.of("test.txt"));</span>
+<span class="o">         </span>
+<span class="o">}</span>
+</code></pre>
+                </figure>
+                <p><code>readAllBytes</code> uses
+                    <code>InputStream#read()</code> under the hood. Next step is
+                    to compile this java file by using <code>javac
+                        Main.java</code>, lastly run this command in your
+                    shell<br>
+                    <code>strace -o output.txt -f ./bin/java Main</code>.
+                    <br>
+                    All system calls that Main.java uses were saved into <code>output.txt</code>
+                    file. If you open the file, output will be huge because
+                    strace also tracked all syscalls that JVM uses upon
+                    starting, but I want you to focus on those few lines
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">43338 openat(AT_FDCWD, "test.txt", O_RDONLY) = 4
+</span>
+<span class="o">43338 read(4, "\0\0\0\30ftypmp42\0\0\0\0isommp42\0\22\321\354moov"..., 75391864) = 75391864
+</span>
+<span class="o">43338 close(4) = 0</span>
+</code></pre>
+                </figure>
+                <p>Let's go over the syscalls line by line</p>
+                <ul>
+                    <li>First we call <code>openat</code> to open the file , the
+                        method returns a file descriptor(number 4 in this case),
+                        a number that can be
+                        used to find this particular file in the filesystem
+                    </li>
+                    <li>Next we read the content of the file by given file
+                        descriptor
+                    </li>
+                    <li>Lastly we release file descriptor back to OS, because
+                        amount of file descriptors is limited, you must give
+                        them back once you are done working with a file(or
+                        socket, that's basically why we have
+                        <code>try/finally</code> block in java, to efficiently
+                        release file descriptors or other resources we don't
+                        need anymore)
+                    </li>
+                </ul>
+                <p>The main syscall here is <code>read</code> that accepts 3
+                    parameters</p>
+                <ul>
+                    <li>fd - file descriptor</li>
+                    <li>buf - byte array where the content will be saved</li>
+                    <li>count - amount of bytes we want to read</li>
+                </ul>
+                <p>
+                    Reading manual page for <code>read</code> call , I didn't
+                    find any references to blocking an underlying user Thread,
+                    so
+                    I start googling and found this article from <a
+                    href="https://lwn.net/Articles/612483/">LWN.net</a>. The
+                    quote from this blog states
+                </p>
+                <blockquote>
+                    So a call to read() on a normal file descriptor can always
+                    block; most of the time this blocking causes no
+                    difficulties, but it can be problematic for programs that
+                    need to always be responsive
+                </blockquote>
+                <p>
+                    Now we know the problem, <code>InputStream</code> is using
+                    blocking system call to read the data by file descriptor.
+                    How is it relevant to our backend service ? Well, when you
+                    make a networking call to the database or to another
+                    service, Linux will use <code>socket</code> syscall that
+                    creates a file descriptor for the socket, the
+                    <code>read</code> method then will read data from the
+                    incoming traffic by using this file descriptor in the same
+                    blocking manner. I think you got an idea, to make
+                    non-blocking reads we need to use another syscall
+                </p>
+                <h2>Meet epoll</h2>
+                <p>I already talked about <code>epoll</code> in my previous blog
+                    where I compared <a
+                        href="https://strogiyotec.github.io/pages/posts/io.html">Java
+                        with Node js</a> but I didn't show how it can be used
+                    within the Java code. Let's see an example by writing a
+                    small program that downloads a video from youtube in
+                    non-blocking way using <a
+                        href="https://github.com/AsyncHttpClient/async-http-client">async-http-client</a>.
+                    Here is the code
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">public static void main(String[] args) {</span>
+<span
+    class="o">  try (final AsyncHttpClient client = Dsl.asyncHttpClient()) {</span>
+<span class="o">          client</span>
+<span class="o">          .prepareGet("use_any_youtube_link")</span>
+<span class="o">          .execute()</span>
+<span class="o">          .toCompletableFuture()</span>
+<span class="o">          .thenAccept(response -> {</span>
+<span class="o">                final byte[] responseBody = response.getResponseBodyAsBytes();</span>
+<span
+    class="o">                Files.write(Path.of("test.mp4"), responseBody);</span>
+<span class="o">          })</span>
+<span
+    class="o">          .thenAccept(unused -> System.out.println("Done"))</span>
+<span class="o">          .join();</span>
+<span class="o">}</span>
+</code></pre>
+                </figure>
+                <p>In essence, we are making a http call that returns a <code>CompletableFuture</code>(java's
+                    way to define a Promise), then we block main thread by
+                    calling <code>join</code>. Let's see what strace can tell us
+                    about this code(you can find and compile this code sample <a
+                        href="https://github.com/strogiyotec/strogiyotec.github.io/tree/master/code_samples/loom/loom.test">here</a>.
+                    Here is the sample output.
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">epoll_create1(EPOLL_CLOEXEC)      = 20</span>
+<span class="o">eventfd2(0, 0)                    = 23</span>
+<span class="o">epoll_ctl(22, EPOLL_CTL_ADD, 23, {EPOLLIN, {u32=23, u64=140381006069783}}) = 0</span>
+<span class="o">epoll_wait(20,...)</span>
+</code></pre>
+                </figure>
+                <p>A lot of new syscalls , let's walk through each of them</p>
+                <ul>
+                    <li><code>epoll_create1</code> - creates an instance of
+                        epoll, in this case kernel create an epoll with id 20
+                    </li>
+                    <li><code>eventfd2</code> - creates a file descriptor for
+                        event notification, in this case the fd is 23
+                    </li>
+                    <li><code>epoll_ctl</code> - tell the kernel file
+                        descriptors you’re interested in updates about, we are
+                        interested in fd 23
+                    </li>
+                    <li><code>epoll_wait</code> - wait for updates about the
+                        list of file descriptors you’re interested in
+                    </li>
+                </ul>
+                <p>Just a reminder, Linux kernel is written in C so the C
+                    equivalent of this program would look like this </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">int epollfd = epoll_create1(0);</span>
+<span class="o">epoll_ctl(epollfd, EPOLL_CTL_ADD, listener_sockfd, &accept_event)</span>
+<span class="o">while (1) {</span>
+<span class="o">    int number_fd_ready = epoll_wait(epollfd, events, MAXFDS, -1);</span>
+<span class="o">    //some logic to work with these file descriptors</span>
+<span class="o">}</span>
+</code></pre>
+                </figure>
+                <p>As you can see, C version has single thread that fetches
+                    available file descriptors without blocking an underling
+                    thread. Kernel does all heavy work for us. <code>async-http-client</code>
+                    made a great job to
+                    give you
+                    an abstraction over epoll, but still , most developers are
+                    not familiar with this programming style, moreover, writing
+                    your code in sequential style is a way easier than working
+                    with callbacks and <code>Features</code>. Here comes the
+                    first problem that project loom tries to solve, allow Java
+                    developers to write your code in the old sequential way.</p>
+                <h2>Legacy software can't take advantage of Async API</h2>
+                <p>Ok, let's say you know how to write efficient code using
+                    asynchronous style, and you are willing to start your new
+                    startup with something like Project Reactor , great but keep
+                    in mind, Java is old and most Java based backends were
+                    written in a blocking way. Servlet API that uses thread
+                    per-request model, Hibernate that uses JDBC under the hood
+                    meanwhile
+                    JDBC is using blocking <code>InputStream</code> to read a
+                    data from a wire. Wouldn't it be nice if JVM runtime could
+                    detect all blocking calls and replace them with async epoll
+                    ? This is exactly what Golang did by using goroutines. Here
+                    is an example of http request written in Go</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">func main() {</span>
+<span
+    class="o">    resp, err := http.Get(&quot;https://example.com/&quot;)</span>
+<span class="o">    defer resp.Body.Close()</span>
+<span class="o">}</span>
+</code></pre>
+                </figure>
+                <p>It's similar to http request you would do with <code>RestTemplate</code>,
+                    the only difference is , <code>RestTemplate</code> uses
+                    <code>read</code> syscall while go uses epoll.
+                    Go doesn't force you to write your code with async callbacks
+                    in mind, the runtime is smart enough to detect(when
+                    possible) syscalls that
+                    block your thread and replace them with async equivalents.
+                </p>
+                <h1>Meet Project Loom</h1>
+                <p>Project loom is an attempt from Oracle to make JVM runtime
+                    smarter by introducing what is called <strong>Virtual
+                        Threads</strong>. I personally found this expression a
+                    little vague. In reality , with Project Loom, JVM runtime
+                    will replace all blocking calls with non-blocking
+                    equivalents the same way as Golang does. You don't have to
+                    replace your Servlet API with Project Reactor to use async
+                    sockets if jvm runtime
+                    can
+                    do it for you. Here is a small example(the source code is available <a href="https://github.com/strogiyotec/strogiyotec.github.io/blob/5cb634038d88ec450da3f0063752ea5f7d8aa209/code_samples/loom/loom.test/src/main/java/loom/test/LoomTest.java">here</a>) that shows you how
+                    Project Loom is going to work.</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">private record URLData(URL url, byte[] response) { }</span>
+<span class="o">private URLData getURL(URL url) throws IOException {</span>
+<span class="o">    try (final InputStream in = url.openStream()) {</span>
+<span class="o">         return new URLData(url, in.readAllBytes());</span>
+<span class="o">    }</span>
+<span class="o">byte[] retrieveURL(URL url) throws Exception {</span>
+<span class="o">    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {</span>
+<span class="o">        final Callable&lt;URLData&gt; callable = () -> getURL(url);</span>
+<span class="o">        return executor.submit(callable).get().response;</span>
+<span class="o">    }</span>
+<span class="o">}</span>
+</code></pre>
+                </figure>
+                <p>Next we need to compile it using Loom build of open-jdk(You can
+                    download it from <a
+                        href="https://jdk.java.net/loom/">here</a>) with
+                    experimental features enabled
+                    flag <code>javac --enable-preview --release 19
+                        LoomTest.java</code>, finally let's run it in background
+                    mode and save thread dumps</p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">java --enable-preview LoomTest & echo $!</span>
+<span class="o">[1] 65371</span>
+<span class="o">jcmd 65371 JavaThread.dump threads.txt</span>
+<span class="o">cat threads.txt</span>
+<span class="o">       java.base/sun.nio.ch.EPoll.wait(Native Method)</span>
+<span class="o">       java.base/sun.nio.ch.EPollPoller.poll(EPollPoller.java:70)</span>
+<span class="o">       java.base/jdk.internal.vm.Continuation.yield(Continuation.java:407)</span>
+<span class="o">       java.base/java.lang.VirtualThread.yieldContinuation(VirtualThread.java:351)</span>
+<span class="o">       java.base/sun.nio.ch.NioSocketImpl.park(NioSocketImpl.java:181)</span>
+<span class="o">       java.base/java.net.URL.openStream(URL.java:1163)</span>
+<span class="o">       LoomTest.getURL(LoomTest.java:22)</span>
+</code></pre>
+                </figure>
+                <p>Some things to notice</p>
+                <ul>
+                    <li>JVM didn't use <code>read</code> method of InputStream
+                    </li>
+                    <li>JVM replaced an actual socket implementation with an
+                        async one from Java-Nio package
+                    </li>
+                    <li><code>EPoll.wait</code> method was used which just uses
+                        <code>epoll_wait</code> syscall
+                    </li>
+                </ul>
+                <p>This is what all Project Loom is about, instead of rewriting
+                    Java program using a new programming paradigm, developers
+                    could just use virtual threads and JVM runtime will replace
+                    all blocking calls with non-blocking ones. There are also
+                    some changes in JDK standard library code, for example, all
+                    children of Input/Output streams were rewritten to
+                    eliminate <code>synchronized</code> keyword because it
+                    generates an assembly which doesn't allow kernel to use
+                    epoll(I am not sure why, haven't worked with assembly yet).
+                </p>
+                <h1>Finale</h1>
+                <p>I hope it was an interesting read for you, and now you have a
+                    better understanding of what virtual threads are
+                    actually meant to be and how it works internally in syscalls
+                    levels. Cheers !</p>
+            </article>
+        </div>
+    </div>
+</div>
+<footer class="site-footer">
+    <div class="centered">
+        © strogiyotec.github.io 2022
+        <span>Website last updated at: <span id="lastupdated"></span></span>
+    </div>
+    <script type="application/javascript" src="../../js/updated_at.js"></script>
+</footer>
+</body>
+</html>
