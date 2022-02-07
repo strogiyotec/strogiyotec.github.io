@@ -431,7 +431,10 @@
                     replace your Servlet API with Project Reactor to use async
                     sockets if jvm runtime
                     can
-                    do it for you. Here is a small example(the source code is available <a href="https://github.com/strogiyotec/strogiyotec.github.io/blob/5cb634038d88ec450da3f0063752ea5f7d8aa209/code_samples/loom/loom.test/src/main/java/loom/test/LoomTest.java">here</a>) that shows you how
+                    do it for you. Here is a small example(the source code is
+                    available <a
+                        href="https://github.com/strogiyotec/strogiyotec.github.io/blob/5cb634038d88ec450da3f0063752ea5f7d8aa209/code_samples/loom/loom.test/src/main/java/loom/test/LoomTest.java">here</a>)
+                    that shows you how
                     Project Loom is going to work.</p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
@@ -449,7 +452,8 @@
 <span class="o">}</span>
 </code></pre>
                 </figure>
-                <p>Next we need to compile it using Loom build of open-jdk(You can
+                <p>Next we need to compile it using Loom build of open-jdk(You
+                    can
                     download it from <a
                         href="https://jdk.java.net/loom/">here</a>) with
                     experimental features enabled
@@ -498,6 +502,14 @@
                     better understanding of what virtual threads are
                     actually meant to be and how it works internally in syscalls
                     levels. Cheers !</p>
+                <h1>References</h1>
+                <ul>
+                    <li><a href="https://jvns.ca/blog/2017/06/03/async-io-on-linux--select--poll--and-epoll/">Epoll Linux</a></li>
+                    <li><a href="https://eli.thegreenplace.net/2017/concurrent-servers-part-3-event-driven/">Epoll code example</a></li>
+                    <li><a href="https://inside.java/2021/05/10/networking-io-with-virtual-threads/">Networking IO with Virtual threads</a></li>
+                    <li><a href="https://stackoverflow.com/questions/70174468/project-loom-what-happens-when-virtual-thread-makes-a-blocking-system-call">My question related to Loom in stackoverflow</a></li>
+                    <li><a href="https://openjdk.java.net/jeps/8277131">JEP draft virtual threads</a></li>
+                </ul>
             </article>
         </div>
     </div>
