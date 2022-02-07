@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Project Loom. How virtual threads are different.</title>
+    <title>Project Loom. How are virtual threads different.</title>
     <meta charset="UTF-8">
     <meta property="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -19,7 +19,7 @@
         content="https://raw.githubusercontent.com/strogiyotec/strogiyotec.github.io/master/images/loom.jpg"
         property="og:image"/>
     <meta content="Almas Abdrazak" property="author">
-    <title>Project Loom. How virtual threads are different</title>
+    <title>Project Loom. How are virtual threads different</title>
     <link rel="stylesheet" href="../../css/font-awesome.min.css">
     <link rel="stylesheet" href="../../css/main.css">
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -106,7 +106,7 @@
     <div class="wrapper">
         <div class="post">
             <header class="post-content">
-                <h1 class="post-title">Project Loom. How virtual threads are
+                <h1 class="post-title">Project Loom. How are virtual threads
                     different ? </h1>
                 <p class="post-meta">January 30 , 2022</p>
             </header>
@@ -121,7 +121,7 @@
                     way such as <a href="https://projectreactor.io/">Project
                     Reactor</a>. I have nothing against of Reactor project,
                     Confluence made a good developer experience for regular devs
-                    to use non-blocking API, there is however a big drawback in
+                    to use non-blocking API, however there is a big drawback in
                     Reactor that I see. Once you start writing a backend in a
                     reactive style, you can't stop. All blocking calls have to
                     be rewritten using non-blocking API which is a completely
@@ -169,13 +169,13 @@
                     business logic. Business logic almost always contains an IO
                     interaction with remote services such as
                     cache(Redis,Memcached),database(Postgres),
-                    third party services(Stripe). Most of the time ,the
+                    and third party services(Stripe). Most of the time ,the
                     networking communication
                     logic is written in the blocking way whether it's <code>RestTemplate</code>
                     to send an http request to the service
-                    or <code>JdbcTemplate</code> to fetch some data from
+                    or <code>JdbcTemplate</code> to fetch some data from the
                     database. Blocking calls will block a
-                    thread from Tomcat's thread poll and the only way to
+                    thread from Tomcat's thread pool and the only way to
                     increase the throughput of the backend is to increase the
                     amount of threads in the poll.
                     Increasing amount of threads means more context
@@ -195,7 +195,7 @@
                     namely <code>InputStream</code> and
                     <code>OutputStream</code> and their subclasses. Let's say we
                     want to read some data from database using Jdbc, the
-                    stacktrace of the program will end up by calling
+                    stacktrace of the program will end up by calling the
                     <code>read</code> method of <code>InputStream</code>, here
                     is the interface for this method.
                 </p>
@@ -235,7 +235,7 @@
                     shell<br>
                     <code>strace -o output.txt -f ./bin/java Main</code>.
                     <br>
-                    All system calls that Main.java uses were saved into <code>output.txt</code>
+                    All system calls that Main.java uses were saved into the <code>output.txt</code>
                     file. If you open the file, output will be huge because
                     strace also tracked all syscalls that JVM uses upon
                     starting, but I want you to focus on those few lines
@@ -277,10 +277,10 @@
                     <li>count - amount of bytes we want to read</li>
                 </ul>
                 <p>
-                    Reading manual page for <code>read</code> call , I didn't
+                    Reading the manual page for <code>read</code> call , I didn't
                     find any references to blocking an underlying user Thread,
                     so
-                    I start googling and found this article from <a
+                    I started googling and found this article from <a
                     href="https://lwn.net/Articles/612483/">LWN.net</a>. The
                     quote from this blog states
                 </p>
@@ -292,7 +292,7 @@
                 </blockquote>
                 <p>
                     Now we know the problem, <code>InputStream</code> is using
-                    blocking system call to read the data by file descriptor.
+                    blocking system calls to read the data by file descriptor.
                     How is it relevant to our backend service ? Well, when you
                     make a networking call to the database or to another
                     service, Linux will use <code>socket</code> syscall that
@@ -335,7 +335,7 @@
 </code></pre>
                 </figure>
                 <p>In essence, we are making a http call that returns a <code>CompletableFuture</code>(java's
-                    way to define a Promise), then we block main thread by
+                    way to define a Promise), then we block the main thread by
                     calling <code>join</code>. Let's see what strace can tell us
                     about this code(you can find and compile this code sample <a
                         href="https://github.com/strogiyotec/strogiyotec.github.io/tree/master/code_samples/loom/loom.test">here</a>.
@@ -379,11 +379,11 @@
 <span class="o">}</span>
 </code></pre>
                 </figure>
-                <p>As you can see, C version has single thread that fetches
-                    available file descriptors without blocking an underling
-                    thread. Kernel does all heavy work for us. <code>async-http-client</code>
-                    made a great job to
-                    give you
+                <p>As you can see, the C version has single thread that fetches
+                    available file descriptors without blocking an underlying
+                    thread. Kernel does all the heavy work for us. <code>async-http-client</code>
+                    did a great job
+                    of giving us
                     an abstraction over epoll, but still , most developers are
                     not familiar with this programming style, moreover, writing
                     your code in sequential style is a way easier than working
@@ -487,8 +487,8 @@
                         <code>epoll_wait</code> syscall
                     </li>
                 </ul>
-                <p>This is what all Project Loom is about, instead of rewriting
-                    Java program using a new programming paradigm, developers
+                <p>This is what Project Loom is all about. Instead of rewriting
+                    Java programs using a new programming paradigm, developers
                     could just use virtual threads and JVM runtime will replace
                     all blocking calls with non-blocking ones. There are also
                     some changes in JDK standard library code, for example, all
@@ -504,11 +504,20 @@
                     levels. Cheers !</p>
                 <h1>References</h1>
                 <ul>
-                    <li><a href="https://jvns.ca/blog/2017/06/03/async-io-on-linux--select--poll--and-epoll/">Epoll Linux</a></li>
-                    <li><a href="https://eli.thegreenplace.net/2017/concurrent-servers-part-3-event-driven/">Epoll code example</a></li>
-                    <li><a href="https://inside.java/2021/05/10/networking-io-with-virtual-threads/">Networking IO with Virtual threads</a></li>
-                    <li><a href="https://stackoverflow.com/questions/70174468/project-loom-what-happens-when-virtual-thread-makes-a-blocking-system-call">My question related to Loom in stackoverflow</a></li>
-                    <li><a href="https://openjdk.java.net/jeps/8277131">JEP draft virtual threads</a></li>
+                    <li><a
+                        href="https://jvns.ca/blog/2017/06/03/async-io-on-linux--select--poll--and-epoll/">Epoll
+                        Linux</a></li>
+                    <li><a
+                        href="https://eli.thegreenplace.net/2017/concurrent-servers-part-3-event-driven/">Epoll
+                        code example</a></li>
+                    <li><a
+                        href="https://inside.java/2021/05/10/networking-io-with-virtual-threads/">Networking
+                        IO with Virtual threads</a></li>
+                    <li><a
+                        href="https://stackoverflow.com/questions/70174468/project-loom-what-happens-when-virtual-thread-makes-a-blocking-system-call">My
+                        question related to Loom in stackoverflow</a></li>
+                    <li><a href="https://openjdk.java.net/jeps/8277131">JEP
+                        draft virtual threads</a></li>
                 </ul>
             </article>
         </div>
