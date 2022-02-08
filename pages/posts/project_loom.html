@@ -337,9 +337,9 @@
                 <p>In essence, we are making a http call that returns a <code>CompletableFuture</code>(java's
                     way to define a Promise), then we block the main thread by
                     calling <code>join</code>. Let's see what strace can tell us
-                    about this code(you can find and compile this code sample <a
+                    about this code(you can find complete code sample <a
                         href="https://github.com/strogiyotec/strogiyotec.github.io/tree/master/code_samples/loom/loom.test">here</a>.
-                    Here is the sample output.
+                    Here is the output I got.
                 </p>
                 <figure class="highlight">
                         <pre><code class="language-java" data-lang="java"><span
@@ -380,16 +380,16 @@
 </code></pre>
                 </figure>
                 <p>As you can see, the C version has single thread that fetches
-                    available file descriptors without blocking an underlying
+                    available file descriptors in the infinite loop(event loop) without blocking an underlying
                     thread. Kernel does all the heavy work for us. <code>async-http-client</code>
                     did a great job
                     of giving us
                     an abstraction over epoll, but still , most developers are
                     not familiar with this programming style, moreover, writing
-                    your code in sequential style is a way easier than working
+                    your code in sequential manner is a way easier than working
                     with callbacks and <code>Features</code>. Here comes the
-                    first problem that project loom tries to solve, allow Java
-                    developers to write your code in the old sequential way.</p>
+                    first problem that Project Loom tries to solve, namely, allow Java
+                    developers to write asynchronous code in sequential way.</p>
                 <h2>Legacy software can't take advantage of Async API</h2>
                 <p>Ok, let's say you know how to write efficient code using
                     asynchronous style, and you are willing to start your new
@@ -397,8 +397,8 @@
                     in mind, Java is old and most Java based backends were
                     written in a blocking way. Servlet API that uses thread
                     per-request model, Hibernate that uses JDBC under the hood
-                    meanwhile
-                    JDBC is using blocking <code>InputStream</code> to read a
+                    while
+                    JDBC is using blocking <code>InputStream</code> to read the
                     data from a wire. Wouldn't it be nice if JVM runtime could
                     detect all blocking calls and replace them with async epoll
                     ? This is exactly what Golang did by using goroutines. Here
