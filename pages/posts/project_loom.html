@@ -113,12 +113,12 @@
             <article class="post-content">
                 <p>
                     I want to start this year with a blog post about <a
-                    href="https://openjdk.java.net/jeps/8277131">Project
+                    href="https://openjdk.java.net/jeps/8277131" target="_blank">Project
                     Loom</a> , a new JEP from Oracle that will bring virtual
                     threads(or coroutines) to the JVM. That's huge and people
                     have been waiting for it for ages. Right now, Java ecosystem
                     provides few frameworks to work with sockets in non-blocking
-                    way such as <a href="https://projectreactor.io/">Project
+                    way such as <a href="https://projectreactor.io/" target="_blank">Project
                     Reactor</a>. I have nothing against of Reactor project,
                     Confluence made a good developer experience for regular devs
                     to use non-blocking API, however there is a big drawback in
@@ -235,7 +235,8 @@
                     shell<br>
                     <code>strace -o output.txt -f ./bin/java Main</code>.
                     <br>
-                    All system calls that Main.java uses were saved into the <code>output.txt</code>
+                    All system calls that Main.java uses were saved into the
+                    <code>output.txt</code>
                     file. If you open the file, output will be huge because
                     strace also tracked all syscalls that JVM uses upon
                     starting, but I want you to focus on those few lines
@@ -277,11 +278,12 @@
                     <li>count - amount of bytes we want to read</li>
                 </ul>
                 <p>
-                    Reading the manual page for <code>read</code> call , I didn't
+                    Reading the manual page for <code>read</code> call , I
+                    didn't
                     find any references to blocking an underlying user Thread,
                     so
                     I started googling and found this article from <a
-                    href="https://lwn.net/Articles/612483/">LWN.net</a>. The
+                    href="https://lwn.net/Articles/612483/" target="_blank">LWN.net</a>. The
                     quote from this blog states
                 </p>
                 <blockquote>
@@ -305,12 +307,12 @@
                 <h2>Meet epoll</h2>
                 <p>I already talked about <code>epoll</code> in my previous blog
                     where I compared <a
-                        href="https://strogiyotec.github.io/pages/posts/io.html">Java
+                        href="https://strogiyotec.github.io/pages/posts/io.html" target="_blank">Java
                         with Node js</a> but I didn't show how it can be used
                     within the Java code. Let's see an example by writing a
                     small program that downloads a video from youtube in
                     non-blocking way using <a
-                        href="https://github.com/AsyncHttpClient/async-http-client">async-http-client</a>.
+                        href="https://github.com/AsyncHttpClient/async-http-client" target="_blank">async-http-client</a>.
                     Here is the code
                 </p>
                 <figure class="highlight">
@@ -338,7 +340,7 @@
                     way to define a Promise), then we block the main thread by
                     calling <code>join</code>. Let's see what strace can tell us
                     about this code(you can find complete code sample <a
-                        href="https://github.com/strogiyotec/strogiyotec.github.io/tree/master/code_samples/loom/loom.test">here</a>.
+                        href="https://github.com/strogiyotec/strogiyotec.github.io/tree/master/code_samples/loom/loom.test" target="_blank">here</a>.
                     Here is the output I got.
                 </p>
                 <figure class="highlight">
@@ -380,7 +382,8 @@
 </code></pre>
                 </figure>
                 <p>As you can see, the C version has single thread that fetches
-                    available file descriptors in the infinite loop(event loop) without blocking an underlying
+                    available file descriptors in the infinite loop(event loop)
+                    without blocking an underlying
                     thread. Kernel does all the heavy work for us. <code>async-http-client</code>
                     did a great job
                     of giving us
@@ -388,7 +391,8 @@
                     not familiar with this programming style, moreover, writing
                     your code in sequential manner is a way easier than working
                     with callbacks and <code>Features</code>. Here comes the
-                    first problem that Project Loom tries to solve, namely, allow Java
+                    first problem that Project Loom tries to solve, namely,
+                    allow Java
                     developers to write asynchronous code in sequential way.</p>
                 <h2>Legacy software can't take advantage of Async API</h2>
                 <p>Ok, let's say you know how to write efficient code using
@@ -433,7 +437,7 @@
                     can
                     do it for you. Here is a small example(the source code is
                     available <a
-                        href="https://github.com/strogiyotec/strogiyotec.github.io/blob/5cb634038d88ec450da3f0063752ea5f7d8aa209/code_samples/loom/loom.test/src/main/java/loom/test/LoomTest.java">here</a>)
+                        href="https://github.com/strogiyotec/strogiyotec.github.io/blob/5cb634038d88ec450da3f0063752ea5f7d8aa209/code_samples/loom/loom.test/src/main/java/loom/test/LoomTest.java" target="_blank">here</a>)
                     that shows you how
                     Project Loom is going to work.</p>
                 <figure class="highlight">
@@ -455,7 +459,7 @@
                 <p>Next we need to compile it using Loom build of open-jdk(You
                     can
                     download it from <a
-                        href="https://jdk.java.net/loom/">here</a>) with
+                        href="https://jdk.java.net/loom/" target="_blank">here</a>) with
                     experimental features enabled
                     flag <code>javac --enable-preview --release 19
                         LoomTest.java</code>, finally let's run it in background
@@ -496,6 +500,52 @@
                     eliminate <code>synchronized</code> keyword because it
                     generates an assembly which doesn't allow kernel to use
                     epoll(I am not sure why, haven't worked with assembly yet).
+                </p>
+                <h1>What about Servlet Containers?</h1>
+                <p>Most Java servers are written using <code>ServerSocket</code>
+                    class that simply listens for new connections in given port.
+                    Here is the small example how you can implement a http
+                    server using thread per request model
+                </p>
+                <figure class="highlight">
+                        <pre><code class="language-java" data-lang="java"><span
+                            class="k"></span>
+<span class="o">try (var serverSocket = new ServerSocket(8080)) {</span>
+<span class="o">    try (var pool = Executors.newFixedThreadPool(10)) {</span>
+<span class="o">            while (true) {</span>
+<span
+    class="o">                Socket connectionSocket = serverSocket.accept();</span>
+<span class="o">                 pool.submit(() -> {</span>
+<span class="o">                        InputStream inputToServer = connectionSocket.getInputStream();</span>
+<span class="o">                        OutputStream outputFromServer = connectionSocket.getOutputStream();</span>
+<span class="o">                        Scanner scanner = new Scanner(inputToServer, StandardCharsets.UTF_8);</span>
+<span class="o">                        PrintWriter serverPrintOut = new PrintWriter(new OutputStreamWriter(outputFromServer, "UTF-8"), true);</span>
+<span class="o">                        while (scanner.hasNextLine()) {  String userData = scanner.nextLine();}</span>
+</code></pre>
+                </figure>
+                <p>User creates a connection, server submits this task into
+                    dedicated pool. As you can see we are using <code>InputStream</code>
+                    to read the data from the user. The read method is blocking
+                    as I said before so Thread from a pool can't do anything
+                    else while waiting for user to finish the input.But what if
+                    we change the pool into a virtual one(here is the <a target="_blank"
+                        href="https://github.com/strogiyotec/strogiyotec.github.io/blob/master/code_samples/loom/loom.test/src/main/java/loom/test/LoomServer.java">source
+                        code</a>) ? <code>var pool =
+                        Executors.newVirtualThreadPool(10)</code></p>
+                <p>
+                    In this case, JVM runtime will switch to non-blocking
+                    sockets without you changing any lines of code(except for
+                    the Executor implementation). If you run this server and
+                    load test it with a bunch of telnet clients, there will be
+                    only one thread that handles the IO part. Here is the view
+                    from <strong>JVisualVM</strong> after opening 3 telnet
+                    sessions to the server
+                </p>
+                <img alt="Jvisualvm" src="../../images/threads.png">
+                <p>
+                    Read and write poller are <code>epoll</code> related
+                    threads, all logic is running within <strong>Main</strong>
+                    thread without using any additional threads
                 </p>
                 <h1>Finale</h1>
                 <p>I hope it was an interesting read for you, and now you have a
