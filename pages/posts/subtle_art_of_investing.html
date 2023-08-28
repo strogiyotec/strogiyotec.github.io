@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>The Subtle Art of Investing</title>
+    <meta charset="UTF-8">
+    <meta property="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta property="description" content="postgres,PITR,backups">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta content="The Subtle Art of Investing"
+          property="og:title"/>
+    <meta
+        content="https://strogiyotec.github.io/pages/posts/subtle_art_of_investing.html"
+        property="og:url"/>
+    <meta content="The Subtle Art of Investing"
+          property="og:description"/>
+    <meta content="article" property="og:type"/>
+    <meta content="Almas Abdrazak" property="og:site_name"/>
+    <meta
+        content="https://raw.githubusercontent.com/strogiyotec/strogiyotec.github.io/master/images/freeze_tom.jpg"
+        property="og:image"/>
+    <meta content="Almas Abdrazak" property="author">
+    <title>The Subtle Art of Investing</title>
+    <link rel="stylesheet" href="../../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async
+            src="https://www.googletagmanager.com/gtag/js?id=UA-163711919-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+
+      gtag('config', 'UA-163711919-1');
+    </script>
+</head>
+<body>
+<header class="site-header">
+    <div class="wrapper">
+        <div class="centered">
+            <img src="../../images/me.jpeg" alt="Author" class="photo">
+            <ul class="horizontal-list">
+                <li>
+                    <a title="Follow me on Github"
+                       href="https://github.com/strogiyotec">
+                        <i class="fa fa-github fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Feel free to drop me a line"
+                       href="mailto:almas337519@gmail.com">
+                        <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Schedule a meeting with me "
+                       href="https://calendly.com/aalmas">
+                        <i class="fa fa-calendar fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a title="Check my stack-overflow account"
+                       href="https://stackoverflow.com/users/8019439/almas-abdrazak">
+                        <i class="fa fa-stack-overflow fa-lg"
+                           aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="Follow me on medium"
+                       href="https://medium.com/@almas337519">
+                        <i class="fa fa-medium fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <a type="My LinkedIn account"
+                       href="https://www.linkedin.com/in/almas-abdrazak-01882515b/">
+                        <i class="fa fa-linkedin fa-lg" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <nav class="site-nav">
+            <a href="#" class="menu-icon">
+                <svg viewBox="0 0 18 15">
+                    <path fill="#424242"
+                          d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+                    <path fill="#424242"
+                          d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+                    <path fill="#424242"
+                          d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+                </svg>
+            </a>
+            <div class="trigger">
+                <a class="page-link" href="../../index.html">About</a>
+                <a class="page-link" href="../blogs.html">Blog</a>
+                <a class="page-link" href="../../pages/resume.html">Resume</a>
+                <a class="page-link" href="../../pages/talks.html">Talks</a>
+            </div>
+        </nav>
+    </div>
+</header>
+<div class="page-content">
+    <div class="wrapper">
+        <div class="post">
+            <header class="post-content">
+                <h1 class="post-title">The Subtle Art of Investing</h1>
+                <p class="post-meta">Aug 27 , 2023</p>
+            </header>
+            <article class="post-content">
+                <p>With this blog I want to start a series of posts to cover the
+                    importance of the stock market. The stock market became a
+                    hobby of
+                    mine 2 years ago(at the time of writing the year is
+                    2023). Firstly I was really sceptical about the topic having
+                    a brief picture in mind of people calling me and trying to
+                    sell me stocks same way as a scammer is trying to get my
+                    credit card credentials. But after doing some due
+                    diligence I actually found out how much did I lose by
+                    discovering stock market so late and the importance of it
+                    for my overall financial future. This first post in my
+                    series will give you some introduction on what stock market
+                    is and why you should care.</p>
+                <figure class="articleimg">
+                    <img src="../../images/tom_reads_paper.png"
+                         alt="Tom Reads book">
+                    <figcaption>
+                        Tom &amp; Jerry by William Hanna and Joseph Barbera
+                    </figcaption>
+                </figure>
+                <h1 id="alternatives"></h1>
+                <p>When I start learning something new it really helps me to
+                    first start with a problem. The problem in this case is an
+                    excessive cash you might have. According to <a
+                        href="https://money.usnews.com/money/personal-finance/saving-and-budgeting/articles/how-much-should-i-save">USNews</a>
+                    50% of your earnings should go to necessities, 30% to
+                    discretionary items and 20% to savings. Fair enough let's do
+                    some math. If you earn 10,000 Canadian dollars per
+                    month after tax(which is considered a high income here in
+                    beautiful Vancouver B.C ) then at least 20% of the salary
+                    must go into savings which is 2,000 dollars.
+                    Great, what do we do now. Let's say you just keep the money
+                    in your checking account which has many advantages the main
+                    one being the liquidity. This liquid cash can help you in
+                    case
+                    of an emergency(which is a question of when it happens
+                    rather than if) or in case when you decide to make a huge
+                    purchase(home or car).
+                    What is a disadvantage then ? There are many but the main
+                    one is a losing of a purchasing power. <i>Dollar today is
+                        worth more than tomorrow</i>. That's because the prices
+                    for goods are always going up. The rise in prices is also
+                    called as Inflation. According to <a
+                        href="https://www.bankofcanada.ca/rates/related/inflation-calculator/">Bank
+                        of Canada</a> the average inflation rate for Canadian
+                    Dollar since 1914 is 3.06% per year meaning the cash you
+                    hold will lose around 3% of it's buying power each year. So
+                    now having cash doesn't sound attractive at all. What do we
+                    do next ? Well in my case prior to entering the Stock Market
+                    I used to hold all savings in the bank's saving account.
+                    The way banks make money(at least how I understand it,
+                    reading
+                    financials of the banks gives my a headache so please
+                    forgive me if my understanding is wrong) is by taking a cash
+                    from customer accounts and giving this cash to customers who
+                    want to get
+                    a mortgage or any other credit lines and then will repay
+                    this credit with some interest on top. Banks can share this
+                    interest with you if you hold your money in the saving
+                    account. But what is a usual interest rate you can earn from
+                    your bank ? As of time of writing <a
+                        href="https://www.td.com/ca/en/personal-banking/products/bank-accounts/account-rates">Toronto
+                        Dominion bank
+                    </a>gives around 1.850% if you open TD ePremium Saving
+                    account. Other big 6 Canadian banks(RBC,BMO etc.) have the
+                    same or even
+                    lower interest rate. Pretty low I would say, but it's not
+                    over, in Canada we have
+                    many branchless banks that only operate online and save
+                    money on renting office properties. One of these banks is my
+                    favorite <a
+                        href="https://www.eqbank.ca/personal-banking/savings-plus-account?nis=8">EQ
+                        Bank</a>. As of time of writing EQB give you 2.5% plus
+                    0.5% as bonus interest making 3% in total. As a reminder we
+                    should earn more than 3.06% to keep up with inflation. Still
+                    not good enough. Another alternative is <a
+                        href="https://www.wealthsimple.com/en-ca">WealthSimple</a>
+                    which gives you 4% on your first 100,000 dollars and then
+                    4.5%. I personally didn't find anything higher than what
+                    WealthSimple can offer. Now we have a solution, we can store
+                    our money in the bank or in the financial institution and
+                    grow money in a rate higher than an inflation.
+                </p>
+                <h1 id="bonds">Bonds</h1>
+                <p>Nevertheless, I would prefer my hardly-earned money to give
+                    me a higher rate, so I can grow my wealth faster than
+                    inflation and then have a bigger buying power once I am
+                    retired. Unfortunately, as we have just seen, the interest
+                    rates from the banks can't do it. One more thing to mention
+                    is that having your money in savings account also gives you
+                    fast access to your founds(liquidity).
+                    The next way to earn a high interest rate is Bonds.
+                    Bonds represent a loan from the buyer (you) to the issuer of
+                    the bond. If it sounds complicated don't worry we will go
+                    over it. Basically when a company needs money it has several
+                    options to raise the capital. The most commons are borrowing
+                    money from a bank or issuing bonds. So what is a bond ?
+                    Think about it as a document, physical or digital, you give
+                    money to the company to buy their bonds. Company in tern
+                    gives you a promise that after some period(called a maturity
+                    period) company will pay you back and give you some interest
+                    on top. Basically similar to the saving account, but you
+                    can't withdraw the money until the Bond's maturity. Why
+                    would a company prefer bonds over the debt from a bank?
+                    There are several reasons such as a fixed rate. For example
+                    right now(2023) Canada has one of the highest interest rates
+                    comparing with the last 20 years.
+                    It means that banks would have to increase their rates for
+                    the existing borrowers. Let's say a company took a debt few
+                    years ago when interest rates were close to 0 and now
+                    company have to pay around 6% of interest to the bank
+                    instead. By issuing bonds company can decide by itself the
+                    interest which won't be effected by the economic situation
+                    in the country.
+                    The next reason is the conditions from the bank. If a
+                    company went bankrupt then it might not be able to repay the
+                    debt so the bank must be sure that company has enough
+                    assets to repay in such cases. By the way, company the went
+                    bankrupt might also not be able to repay the bonds so there
+                    is some risk involved in owning bonds.
+                    Now when we have a broad idea on a bond is let's check what
+                    we can actually earn from it. Unlike the saving account,
+                    it's somewhat harder to buy a bond, you can do it from
+                    companies website directly(For example go to MacDonald's
+                    website and find a bonds section) or through the brokerage(I
+                    will explain what the brokerage is later when we will cover
+                    the stocks).
+                    One of the broker that I use , namely Questrade, offers
+                    bonds to buy
+                </p>
+                <img src="../../images/bonds.png"
+                     alt="Bonds">
+                <br>
+                <p>As you can see the Province of Manitoba offers bonds with
+                    10.5%
+                    coupon rate , yield of 4.325% and maturity date of
+                    3/4/2031. </p>
+                <ul>
+                    <li>Coupon rate - the annual interest rate that bond will
+                        pay
+                    </li>
+                    <li>Yield - the annual interest rate that you will earn
+                        holding the bond
+                    </li>
+                    <li>A bond's term to maturity is the length of time during
+                        which the owner will receive interest payments on the
+                        investment. When the bond reaches maturity your original
+                        payment
+                        is repaid.
+                    </li>
+                </ul>
+                <p>One question you might have is why coupon rate is different
+                    from the yield. The reason is that those bonds are already
+                    sold and are circulated in the market. Let's say Alice
+                    bought
+                    this bond from Manitoba worth of 1,000 dollars. Now
+                    instead of just holding the bond till the maturity Alice
+                    might
+                    sell it to someone else. It doesn't make sense for her to
+                    sell the
+                    bond for the same 1,000 because she can simply hold it and
+                    earn 10%(100$) after the first year, so instead she can go
+                    to open
+                    market and sell this bond for 1,060 to Bob. Now after the
+                    first year Bob will earn 100$ in interest but because he
+                    paid 1060% for the bond his actual yield is 4.325%
+                </p>
+                <p>With bonds you might find a more attractive yields on your
+                    money. Typically , companies with a bad ratings have to give
+                    a higher coupon rate for their bonds because there is a
+                    chance it can go bankrupt and don't pay any interest. What
+                    would you rather own a bond from Apple with yield of 4% or
+                    bond from a new mining company with yield 10% ?</p>
+                <p>Sometime bonds can really help you to beat inflation along
+                    with earning a much higher yield but keep in mind these high
+                    yields for bonds are not permanent. As long as interest
+                    rates are high the bonds will pay a high interest. On the
+                    other hand, in times of a low interest rates bonds hardly
+                    keep up with inflation , but still offer higher yield than
+                    most of the banks in savings. Now when we know what a bond
+                    it's finally a time to enter the stock market </p>
+            </article>
+        </div>
+    </div>
+</div>
+<footer class="site-footer">
+    <div class="centered">
+        © strogiyotec.github.io 2023
+        <span>Website last updated at: <span id="lastupdated"></span></span>
+    </div>
+    <script type="application/javascript" src="../../js/updated_at.js"></script>
+</footer>
+</body>
+</html>
