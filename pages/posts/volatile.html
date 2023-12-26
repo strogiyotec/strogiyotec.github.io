@@ -289,7 +289,7 @@ public class StoppableTask extends Thread {
   public static void main(String[] argc){
        new StoppableTask().run();
   }
-  private boolean pleaseStop = true;
+  private boolean pleaseStop = false;
 
   public void run() {
     while (true) {
